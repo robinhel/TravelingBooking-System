@@ -2,6 +2,7 @@ using MySql.Data.MySqlClient;
 using server;
 using Microsoft.AspNetCore.Mvc;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // config
@@ -24,6 +25,7 @@ var app = builder.Build();
 app.UseSession();
 
 app.MapDelete("/db", db_reset_to_default);
+app.MapPost("/create/account", LoginHandler.CreateAccount);
 
 
 app.Run();

@@ -1,32 +1,51 @@
 using MySql.Data.MySqlClient;
 using Microsoft.AspNetCore.Http;
+
 using server;
 
-namespace server
-{
-    public static class LoginHandler
-    {
-        public record LoginRequest(string Email, string Password);
+namespace server;
 
-        public static async Task<IResult> Login(LoginRequest request, Config config, HttpContext ctx)
+public static class LoginHandler
+{
+    public record LoginRequest(string Email, string Password);
+
+    public static async Task<IResult> Login(LoginRequest request, Config config, HttpContext ctx)
+    {
+        string query = "SELECT id FROM Users WHERE email=@email AND password=@password";
+        var parameters = new MySqlParameter[]
         {
-            string query = "SELECT id FROM Users WHERE email=@email AND password=@password";
-            var parameters = new MySqlParameter[]
-            {
                 new("@email", request.Email),
                 new("@password", request.Password)
-            };
+        };
 
-            object result = await MySqlHelper.ExecuteScalarAsync(config.connectionString, query, parameters);
+        object result = await MySqlHelper.ExecuteScalarAsync(config.connectionString, query, parameters);
 
-            if (result is int id)
-            {
-                ctx.Session.SetInt32("user_id", id);
-                return Results.Ok(new { Message = "Logged in" });
-            }
-
-            return Results.BadRequest("Wrong email or password");
+        if (result is int id)
+        {
+            ctx.Session.SetInt32("user_id", id);
+            return Results.Ok(new { Message = "Logged in" });
         }
+
+        return Results.BadRequest("Wrong email or password");
+    }
+
+    public static async Task<IResult> CreateAccount(CreateAccountRequest request, Config config, HttpContext ctx)
+    {
+        string AccountQuery = "INSERT INTO users (name, email, password) VALUES (@name , @email, @password)";
+        var parameters = new MySqlParameter[]
+        {
+            new("@name", request.name),
+            new("@email", request.email),
+            new("@password", request.password)
+        };
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, AccountQuery, parameters);
+
+        return Results.Ok("Account created");
     }
 }
-public record LoginRequest(string Email, string Password);
+
+
+
+
+public record CreateAccountRequest(string name, string email, string password);
+
