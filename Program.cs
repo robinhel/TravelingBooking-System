@@ -25,6 +25,7 @@ app.UseSession();
 
 app.MapDelete("/db", db_reset_to_default);
 
+
 app.Run();
 
 async Task db_reset_to_default(Config config)
@@ -42,3 +43,8 @@ async Task db_reset_to_default(Config config)
 
     await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, users_table);
 }
+
+
+
+
+
