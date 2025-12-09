@@ -24,9 +24,9 @@ var app = builder.Build();
 // aktivera session
 app.UseSession();
 
-app.MapDelete("/db", db_reset_to_default);
+app.MapDelete("/db", Sql.db_reset_to_default);
 app.MapPost("/create/account", LoginHandler.CreateAccount);
-
+app.MapPost("/login", LoginHandler.Login);
 
 app.Run();
 
