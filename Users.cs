@@ -29,4 +29,33 @@ namespace server
         }
     }
 }
+public static class Users()
+{
+    public record ShowProfileRequest(int id, string name, string email);
+    public static async Task<IResult> ViewProfile(ShowProfileRequest request, Config config, HttpContext ctx)
+    {
+        int? userId = ctx.Session.GetInt32("id");
+        if (userId == null)
+        {
+            return Results();
+        }
+
+        MySqlParameter[] parameters = {
+            new("@id" = userId.Value)
+        };
+
+
+        const string ShowQuery = "SELECT id, name, email FROM users WHERE id = @id";
+
+        object Profile = await MySqlHelper.ExecuteScalarAsync(config.connectionString, ShowQuery, parameters);
+        if (Profile == null)
+        {
+            return Results("User not found");
+        }
+        string json = Convert.ToString(Profile);
+
+        return Results();
+    }
+
+}
 public record LoginRequest(string Email, string Password);
