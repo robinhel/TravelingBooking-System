@@ -27,6 +27,9 @@ app.UseSession();
 app.MapDelete("/db", Sql.db_reset_to_default);
 app.MapPost("/create/account", LoginHandler.CreateAccount);
 app.MapPost("/login", LoginHandler.Login);
+app.MapGet("/search", SearchHandler.Search);
+
+
 
 app.Run();
 
