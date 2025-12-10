@@ -88,6 +88,7 @@ public static class Users
 
 
 
+public record CreateAccountRequest(string name, string email, string password);
 
 
 public record LoginRequest(string Email, string Password);

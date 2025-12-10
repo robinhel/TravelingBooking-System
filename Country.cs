@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using server;
 
@@ -17,16 +18,22 @@ public static class Country
 
         return Results.Ok("Country added!");
     }
-    public static async Task<IResult> GetCountry(CountryRequest request, Config config, HttpContext ctx)
+    public static async Task<IResult> GetCountry([FromQuery] string name, Config config)
     {
         string query = "SELECT name FROM countries WHERE name=@name";
+
         var parameters = new MySqlParameter[]
         {
-                new("@name", request.Name)
+            new("@name", name)
         };
 
-        await MySqlHelper.ExecuteScalarAsync(config.connectionString, query, parameters);
+        object result = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, query, parameters);
 
-        return Results.Ok("Successful!");
+        if (result == null)
+        {
+            return Results.NotFound("Country not found");
+        }
+
+        return Results.Ok(new { Name = result.ToString() });
     }
 }
