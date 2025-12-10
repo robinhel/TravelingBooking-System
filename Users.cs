@@ -49,7 +49,7 @@ public static class LoginHandler
 public static class Users
 {
 
-    public static async Task<IResult> ViewProfile(ShowProfileRequest request, Config config, HttpContext ctx)
+    public static async Task<IResult> ViewProfile(Config config, HttpContext ctx)
     {
         int? SessionUserId = ctx.Session.GetInt32("user_id");
         if (SessionUserId == null)
