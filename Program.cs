@@ -33,6 +33,10 @@ app.MapPost("/login", LoginHandler.Login);
 app.MapPost("/countries", Country.AddCountry);
 app.MapGet("/countries", Country.GetCountry);
 
+//cities
+app.MapPost("/cities", City.AddCity);
+app.MapGet("/cities/{countryId}", City.GetCityByCountry);
+
 // Profile
 app.MapGet("/profile", Users.ViewProfile);
 app.MapPut("/profile/update", UserHandler.UpdateProfile);
