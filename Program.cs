@@ -26,7 +26,7 @@ app.UseSession();
 
 app.MapDelete("/db", db_reset_to_default);
 app.MapPost("/create/account", LoginHandler.CreateAccount);
-
+app.MapGet("/profile", Users.ShowProfileRequest);
 
 app.Run();
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace server;
 
+public record ShowProfileRequest(int id, string name, string email);
 public static class LoginHandler
 {
     public record CreateAccountRequest(string name, string email, string password);
@@ -42,32 +43,44 @@ public static class LoginHandler
         return Results.Ok("Account created");
     }
 }
-public static class Users()
+public static class Users
 {
-    public record ShowProfileRequest(int id, string name, string email);
+
     public static async Task<IResult> ViewProfile(ShowProfileRequest request, Config config, HttpContext ctx)
     {
-        int? userId = ctx.Session.GetInt32("id");
-        if (userId == null)
+        int? SessionUserId = ctx.Session.GetInt32("user_id");
+        if (SessionUserId == null)
         {
-            return Results();
+            return Results.Unauthorized();
         }
 
         MySqlParameter[] parameters = {
-            new("@id" = userId.Value)
+            new MySqlParameter("@user_id" , SessionUserId.Value)
         };
 
 
-        const string ShowQuery = "SELECT id, name, email FROM users WHERE id = @id";
+        const string ShowQuery = "SELECT user_id, name, email FROM users WHERE user_id = @user_id";
 
-        object Profile = await MySqlHelper.ExecuteScalarAsync(config.connectionString, ShowQuery, parameters);
-        if (Profile == null)
+        using var reader = await MySqlHelper.ExecuteReaderAsync(config.connectionString, ShowQuery, parameters);
+
+        int userId;
+        string name;
+        string email;
+
+        if (!await reader.ReadAsync())
         {
-            return Results("User not found");
+            return Results.NotFound("Profile not found");
         }
-        string json = Convert.ToString(Profile);
+        else
+        {
+            userId = reader.GetInt32(0);
+            name = reader.GetString(1);
+            email = reader.GetString(2);
+        }
+        var Profile = new ShowProfileRequest(userId, name, email);
 
-        return Results();
+
+        return Results.Ok(Profile);
     }
 
 }
