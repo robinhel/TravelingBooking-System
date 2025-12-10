@@ -26,8 +26,11 @@ app.UseSession();
 
 app.MapDelete("/db", Sql.db_reset_to_default);
 app.MapPost("/create/account", LoginHandler.CreateAccount);
+app.MapGet("/profile", Users.ViewProfile);
 app.MapPost("/login", LoginHandler.Login);
+app.MapPut("/profile/update", UserHandler.UpdateProfile);
 app.MapPost("/countries", Country.AddCountry);
 app.MapGet("/countries", Country.GetCountry);
 
 app.Run();
+

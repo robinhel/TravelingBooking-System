@@ -59,3 +59,22 @@ Body raw JSON:
 
     "password": "123"
 }
+}
+
+
+### hämta Countries
+
+Metod: GET
+URL: /countries
+
+
+### lägga till Countires
+
+Metod: POST
+URL: /countries
+
+Body raw JSON:
+{
+
+
+}  
