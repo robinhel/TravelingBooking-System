@@ -28,16 +28,19 @@ app.MapDelete("/db", Sql.db_reset_to_default);
 app.MapPost("/create/account", LoginHandler.CreateAccount);
 app.MapPost("/login", LoginHandler.Login);
 app.MapPut("/profile/update", UserHandler.UpdateProfile);
+app.MapPost("/countries", Country.AddCountry);
+app.MapGet("/countries", Country.GetCountry);
 
 app.Run();
 
+/*
 async Task db_reset_to_default(Config config)
 {
     await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS users");
 
     string users_table = """ 
         CREATE TABLE Users (
-            id INT PRIMARY KEY AUTO_INCREMENT,
+            user_id INT PRIMARY KEY AUTO_INCREMENT,
             name VARCHAR(254) NOT NULL,
             email VARCHAR(254) NOT NULL UNIQUE,
             password VARCHAR(128) NOT NULL
@@ -46,6 +49,7 @@ async Task db_reset_to_default(Config config)
 
     await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, users_table);
 }
+*/
 
 
 
