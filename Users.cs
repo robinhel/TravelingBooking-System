@@ -45,8 +45,4 @@ public static class LoginHandler
     }
 }
 
-
-
-
 public record CreateAccountRequest(string name, string email, string password);
-
