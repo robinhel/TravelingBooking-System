@@ -78,3 +78,16 @@ Body raw JSON:
 
 
 }  
+
+### Update profile (email, username, password)
+
+Metod: PUT
+URL: /profile/update 
+
+Body raw JSON:
+{
+    "name" : ".....",
+    "email" : ".....",
+    "password" : "....",
+    "ConfirmPassword" : "...."
+}
