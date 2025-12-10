@@ -12,7 +12,7 @@ public static class LoginHandler
 
     public static async Task<IResult> Login(LoginRequest request, Config config, HttpContext ctx)
     {
-        string query = "SELECT id FROM Users WHERE email=@email AND password=@password";
+        string query = "SELECT user_id FROM Users WHERE email=@email AND password=@password";
         var parameters = new MySqlParameter[]
         {
                 new("@email", request.Email),
