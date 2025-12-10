@@ -1,22 +1,30 @@
-using MySql.Data.MySqlClient;
-using Microsoft.AspNetCore.Http;
+using MySql.Data.MySqlClient; // pratar med mysql-databasen (BEHÖVS ALLTID VARA MED)
+using Microsoft.AspNetCore.Http; // hanterar webbtrafik(Sessioner och cookies(BEHÖVS ALLTID VARA MED))
 using MySqlX.XDevAPI.Common;
 
 namespace server;
 
 public static class UserHandler
 {
-    public record UpdateProfileRequest(string Name, string Email, string Password);
+    public record UpdateProfileRequest(string Name, string Email, string Password, string ConfirmPassword);
 
     public static async Task<IResult> UpdateProfile(UpdateProfileRequest request, Config config, HttpContext ctx)
+    // I = Interface(Regelbok/Kartong)
+    //Result för att kunna retunera "resultatet(Results.OK osv) i samma metod
+    // config (nycklar till databasen(lösenord, adress))
+    //ctx "nuet" information om besökaren, deras session, cookies, ip-adress
     {
-        int? userId = ctx.Session.GetInt32("user_id");
+        int? userId = ctx.Session.GetInt32("user_id"); // "Känn i fickan" efter ett ID. Om det finns: spara det. Om det är tomt: spara null.
 
         if (userId == null)
         {
             return Results.BadRequest("You must be logged in to update profile");
         }
-
+        if (request.Password != request.ConfirmPassword)
+        {
+            return Results.BadRequest("Password do not match, try again ");
+        }
+        //Instruktioner till databasen
         string query =
         @"
         UPDATE users
@@ -27,6 +35,7 @@ public static class UserHandler
 
         var parameters = new MySqlParameter[]
         {
+            //kopplar ihop postman till databasen t.ex Där står @namn på lappen, stoppa in request.Name
             new("@name", request.Name),
             new("@email", request.Email),
             new("@password", request.Password),
