@@ -44,6 +44,8 @@ Body raw JSON:
 
 
 
+
+
 ### Logga in
 
 Metod: POST
@@ -56,6 +58,7 @@ Body raw JSON:
     "email": "test@test.com",
 
     "password": "123"
+}
 }
 
 

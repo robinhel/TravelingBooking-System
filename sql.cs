@@ -1,3 +1,4 @@
+
 using MySql.Data.MySqlClient;
 namespace server;
 
@@ -168,7 +169,7 @@ public static class Sql
         FOREIGN KEY (rooms_id) REFERENCES rooms (rooms_id)
         )
     """;
-        string insert_rooms_by_booking_table = """
+        string insert_rooms_by_booking = """
         INSERT INTO rooms_by_booking(booking_id, rooms_id)
         VALUES
         (1, 1),
@@ -181,12 +182,26 @@ public static class Sql
 
 
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, countries_table);
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, insert_countries);
+
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cities_table);
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cities_insert);
+
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, users_table);
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, insert_users);
+
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, hotel_table);
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, insert_hotels);
+
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, rooms_table);
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, insert_rooms);
+
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, bookings_table);
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, insert_bookings);
+
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, rooms_by_booking_table);
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, insert_rooms_by_booking);
+
 
     }
 }

@@ -9,8 +9,6 @@ namespace server;
 public record ShowProfileRequest(int id, string name, string email);
 public static class LoginHandler
 {
-    public record CreateAccountRequest(string name, string email, string password);
-    public record LoginRequest(string Email, string Password);
 
     public static async Task<IResult> Login(LoginRequest request, Config config, HttpContext ctx)
     {
@@ -92,5 +90,6 @@ public static class Users
 
 
 
+public record LoginRequest(string Email, string Password);
 
 
