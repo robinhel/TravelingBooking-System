@@ -24,13 +24,21 @@ var app = builder.Build();
 // aktivera session
 app.UseSession();
 
-app.MapDelete("/db", Sql.db_reset_to_default);
+//We want to have (Crud) of every endpoint (Create, Read, Update, Delete)
+
 app.MapPost("/create/account", LoginHandler.CreateAccount);
-app.MapGet("/profile", Users.ViewProfile);
 app.MapPost("/login", LoginHandler.Login);
-app.MapPut("/profile/update", UserHandler.UpdateProfile);
+
+//countries
 app.MapPost("/countries", Country.AddCountry);
 app.MapGet("/countries", Country.GetCountry);
+
+// Profile
+app.MapGet("/profile", Users.ViewProfile);
+app.MapPut("/profile/update", UserHandler.UpdateProfile);
+
+// Reset Database
+app.MapDelete("/db", Sql.db_reset_to_default);
 
 app.Run();
 
