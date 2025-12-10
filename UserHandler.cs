@@ -14,10 +14,11 @@ public static class UserHandler
 
         if (userId == null)
         {
-            return Results.BadRequest("You must be loggedin to update profile ");
+            return Results.BadRequest("You must be logged in to update profile");
         }
 
-        string query = @"
+        string query =
+        @"
         UPDATE users
         SET name = @name,
         email = @email, 
@@ -39,7 +40,7 @@ public static class UserHandler
         }
         catch (MySqlException error)
         {
-            return Results.Problem($"Database error: {error.Message} ");
+            return Results.Problem($"Database error: {error.Message}.\n Please try again.");
         }
 
 
