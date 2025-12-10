@@ -8,7 +8,6 @@ namespace server;
 
 public static class LoginHandler
 {
-    public record LoginRequest(string Email, string Password);
 
     public static async Task<IResult> Login(LoginRequest request, Config config, HttpContext ctx)
     {
@@ -47,6 +46,7 @@ public static class LoginHandler
 
 
 
+public record LoginRequest(string Email, string Password);
 
 public record CreateAccountRequest(string name, string email, string password);
 

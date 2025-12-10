@@ -32,25 +32,3 @@ app.MapGet("/countries", Country.GetCountry);
 
 app.Run();
 
-/*
-async Task db_reset_to_default(Config config)
-{
-    await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS users");
-
-    string users_table = """ 
-        CREATE TABLE Users (
-            user_id INT PRIMARY KEY AUTO_INCREMENT,
-            name VARCHAR(254) NOT NULL,
-            email VARCHAR(254) NOT NULL UNIQUE,
-            password VARCHAR(128) NOT NULL
-        )
-    """;
-
-    await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, users_table);
-}
-*/
-
-
-
-
-
