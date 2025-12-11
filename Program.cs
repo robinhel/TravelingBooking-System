@@ -27,10 +27,14 @@ app.UseSession();
 app.MapDelete("/db", Sql.db_reset_to_default);
 app.MapPost("/create/account", LoginHandler.CreateAccount);
 app.MapPost("/login", LoginHandler.Login);
+app.MapPost("/search", async (string food, Config config) =>
+{
+    return await SearchHandler.SearchFoodAndGetHotels(food, config);
+});
 
 app.Run();
 
-async Task db_reset_to_default(Config config)
+/* async Task db_reset_to_default(Config config)
 {
     await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS users");
 
@@ -44,7 +48,7 @@ async Task db_reset_to_default(Config config)
     """;
 
     await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, users_table);
-}
+} */
 
 
 

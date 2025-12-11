@@ -27,6 +27,9 @@ public static class Sql
         CREATE TABLE cities(
         city_id INT PRIMARY KEY AUTO_INCREMENT,
         countries_id INT NOT NULL,
+        city_name VARCHAR(254) NOT NULL,
+        food_name VARCHAR(254),
+        food_description VARCHAR(254),
         FOREIGN KEY (countries_id) REFERENCES countries(countries_id)
         )
     """;
