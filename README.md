@@ -89,10 +89,12 @@ URL: /profile/update
 
 Body raw JSON:
 {
+
     "name" : ".....",
     "email" : ".....",
     "password" : "....",
     "ConfirmPassword" : "...."
+
 }
 
 
@@ -103,7 +105,9 @@ URL: /profile/changePassword
 
 Body raw JSON: 
 {
+
     "oldPassword" : "GAMLA LÖSENORD (123)",
     "newPassword" : "NYTT LÖSENORD",
     "ConfirmPassword" : "CONFIRMA DITT LÖSENORD"
+    
 }
