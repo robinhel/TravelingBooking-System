@@ -47,7 +47,7 @@ public static class Sql
         (1, 'Stockholm', 'Swedish meatballs'),
         (1, 'Gothenburg', 'Shrimp sandwich'),
 
-        (2, 'Oslo', 'Mutton and Cabbage stem'),
+        (2, 'Oslo', 'Mutton and Cabbage stew'),
         (2, 'Bergen', 'Bergen fish soup'),
         
         (3, 'Rome', 'Cheese and pepper pasta'),
