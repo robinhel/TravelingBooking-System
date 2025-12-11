@@ -24,7 +24,8 @@ var app = builder.Build();
 // aktivera session
 app.UseSession();
 
-app.MapDelete("/db", Sql.db_reset_to_default);
+//We want to have (Crud) of every endpoint (Create, Read, Update, Delete)
+
 app.MapPost("/create/account", LoginHandler.CreateAccount);
 app.MapPost("/login", LoginHandler.Login);
 app.MapPost("/search", async (string food, Config config) =>
@@ -32,25 +33,21 @@ app.MapPost("/search", async (string food, Config config) =>
     return await SearchHandler.SearchFoodAndGetHotels(food, config);
 });
 
+//countries
+app.MapPost("/countries", Country.AddCountry);
+app.MapGet("/countries", Country.GetCountry);
+
+//cities
+app.MapPost("/cities", City.AddCity);
+app.MapGet("/cities", City.GetCityByCountry);
+
+// Profile
+app.MapGet("/profile", Users.ViewProfile);
+app.MapPut("/profile/update", UserHandler.UpdateProfile);
+app.MapPut("/profile/changePassword", UserHandler.ChangePasswordRequest);
+
+// Reset Database
+app.MapDelete("/db", Sql.db_reset_to_default);
+
 app.Run();
-
-/* async Task db_reset_to_default(Config config)
-{
-    await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS users");
-
-    string users_table = """ 
-        CREATE TABLE Users (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            name VARCHAR(254) NOT NULL,
-            email VARCHAR(254) NOT NULL UNIQUE,
-            password VARCHAR(128) NOT NULL
-        )
-    """;
-
-    await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, users_table);
-} */
-
-
-
-
 

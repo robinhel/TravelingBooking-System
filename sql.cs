@@ -1,3 +1,4 @@
+
 using MySql.Data.MySqlClient;
 namespace server;
 
@@ -10,9 +11,9 @@ public static class Sql
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS bookings");
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS rooms");
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS hotels");
-        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS users");
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS cities");
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS countries");
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS users");
 
 
         string countries_table = """ 
@@ -22,7 +23,14 @@ public static class Sql
         )
     """;
 
-
+        string insert_countries = """
+        INSERT INTO countries (name)
+        VALUES 
+        ('Sweden'),
+        ('Norway'),
+        ('Italy');
+    """;
+        //-------------------------------------------------------------------------------------------------
         string cities_table = """
         CREATE TABLE cities(
         city_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -33,6 +41,21 @@ public static class Sql
         FOREIGN KEY (countries_id) REFERENCES countries(countries_id)
         )
     """;
+
+        string cities_insert = """
+        INSERT INTO cities (countries_id, name, culinary)
+        VALUES
+        (1, 'Stockholm', 'Swedish meatballs'),
+        (1, 'Gothenburg', 'Shrimp sandwich'),
+
+        (2, 'Oslo', 'Mutton and Cabbage stew'),
+        (2, 'Bergen', 'Bergen fish soup'),
+        
+        (3, 'Rome', 'Cheese and pepper pasta'),
+        (3, 'Milan', 'Risotto alla Milanese');
+    """;
+
+        //-------------------------------------------------------------------------------------------------
 
 
         string users_table = """ 
@@ -45,6 +68,16 @@ public static class Sql
         )
     """;
 
+        string insert_users = """
+        INSERT INTO users (name, email, password, role)
+        VALUES
+        ('Test', 'test@hotmail.com', '123', 'Traveler'),
+        ('Admin', 'admin@site.com', '123', 'Admin');
+    """;
+
+
+        //-------------------------------------------------------------------------------------------------
+
         string hotel_table = """ 
         CREATE TABLE Hotels (
             hotel_id INT PRIMARY KEY  AUTO_INCREMENT,
@@ -55,10 +88,23 @@ public static class Sql
     """;
 
 
-        string insert_test_user = """
-        INSERT INTO users(name, email, password, role)
-        VALUES ('test', 'test@hotmail.com', '123', 'Traveler')
+        string insert_hotels = """
+        INSERT INTO hotels (name, city_id)
+        VALUES
+        
+        ('Stockholm Hotel', 1),
+        ('Gothenburg Hotel', 2),
+        
+        ('Oslo Hotel', 3),
+        ('Bergen Hotel', 4),
+
+        ('Rome Hotel', 5),
+        ('Milan Hotel', 6);
     """;
+
+
+
+        //-------------------------------------------------------------------------------------------------
 
 
         string rooms_table = """ 
@@ -72,16 +118,48 @@ public static class Sql
         )
     """;
 
-        string bookings_table = """ 
-        CREATE TABLE bookings (
+        string insert_rooms = """
+        INSERT INTO rooms (number, price, capacity, hotel_id)
+        VALUES
+        (101, 120, 2, 1),
+        (102, 150, 3, 1),
+
+        (201, 110, 2, 2),
+        (202, 160, 4, 2),
+
+        (301, 130, 2, 3),
+        (302, 180, 3, 3),
+
+        (401, 140, 2, 4),
+        (402, 220, 4, 4),
+
+        (501, 200, 2, 5),
+        (502, 260, 3, 5),
+
+        (601, 240, 2, 6),
+        (602, 300, 4, 6);
+""";
+        //-------------------------------------------------------------------------------------------------
+
+        string bookings_table = """
+        CREATE TABLE bookings(
         booking_id INT PRIMARY KEY AUTO_INCREMENT,
-        user_id INT NOT NULL ,
+        user_id INT NOT NULL,
         Check_IN DATE NOT NULL,
         Check_OUT DATE NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users(user_id),
-        Status ENUM ('Pending','Confirmed','Cancelled') NOT NULL DEFAULT 'Pending'     
-        )   
+        FOREIGN KEY(user_id) REFERENCES users(user_id),
+        Status ENUM('Pending', 'Confirmed', 'Cancelled') NOT NULL DEFAULT 'Pending'
+        )
     """;
+
+        string insert_bookings = """
+        INSERT INTO bookings (user_id, Check_IN, Check_OUT, Status)
+        VALUES
+        (1, '2025-06-10', '2025-06-15', 'Confirmed'),
+        (2, '2025-07-01', '2025-07-05', 'Pending');
+        """;
+
+        //-------------------------------------------------------------------------------------------------
 
 
         string rooms_by_booking_table = """ 
@@ -93,15 +171,39 @@ public static class Sql
         FOREIGN KEY (rooms_id) REFERENCES rooms (rooms_id)
         )
     """;
+        string insert_rooms_by_booking = """
+        INSERT INTO rooms_by_booking(booking_id, rooms_id)
+        VALUES
+        (1, 1),
+        (1, 2),
+        (2, 3);
+        """;
+        //-------------------------------------------------------------------------------------------------
+
+
 
 
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, countries_table);
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, insert_countries);
+
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cities_table);
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cities_insert);
+
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, users_table);
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, insert_users);
+
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, hotel_table);
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, insert_hotels);
+
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, rooms_table);
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, insert_rooms);
+
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, bookings_table);
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, insert_bookings);
+
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, rooms_by_booking_table);
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, insert_rooms_by_booking);
+
 
     }
 }
