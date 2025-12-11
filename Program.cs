@@ -39,6 +39,14 @@ app.MapGet("/countries", Country.GetCountry);
 app.MapPost("/cities", City.AddCity);
 app.MapGet("/cities", City.GetCityByCountry);
 
+//hotels
+app.MapPost("/hotels", Hotel.AddHotel);
+app.MapGet("/hotels", Hotel.GetHotelByCity);
+
+//rooms
+app.MapPost("/rooms", Rooms.AddRoom);
+app.MapGet("/hotels/{hotelId}/rooms", Rooms.GetRooms);
+
 // Profile
 app.MapGet("/profile", Users.ViewProfile);
 app.MapPut("/profile/update", UserHandler.UpdateProfile);
