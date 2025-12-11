@@ -26,7 +26,7 @@ public static class City
         return Results.Ok("City added!");
     }
 
-     public static async Task<IResult> GetCityByCountry(int countryId, Config config)
+    public static async Task<IResult> GetCityByCountry(int countryId, Config config)
     {
         string query = "SELECT city_id, name, culinary FROM cities WHERE countries_id=@countries_id";
         var parameters = new MySqlParameter[]
