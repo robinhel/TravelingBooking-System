@@ -38,7 +38,7 @@ public static class Sql
         countries_id INT NOT NULL,
         city_name VARCHAR(254) NOT NULL,
         food_name VARCHAR(254),
-        food _description VARCHAR(254),
+        food_description VARCHAR(254),
         FOREIGN KEY (countries_id) REFERENCES countries(countries_id)
         )
     """;

@@ -28,10 +28,8 @@ app.UseSession();
 
 app.MapPost("/create/account", LoginHandler.CreateAccount);
 app.MapPost("/login", LoginHandler.Login);
-app.MapPost("/search", async (string food, Config config) =>
-{
-    return await SearchHandler.SearchFoodAndGetHotels(food, config);
-});
+app.MapPost("/search", SearchHandler.SearchFoodAndGetHotels);
+
 
 //countries
 app.MapPost("/countries", Country.AddCountry);
