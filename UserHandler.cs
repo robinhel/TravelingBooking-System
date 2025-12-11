@@ -54,4 +54,50 @@ public static class UserHandler
 
 
     }
+    public record changePassword(string oldPassword, string newPassword, string ConfirmPassword);
+
+    public static async Task<IResult> ChangePasswordRequest(changePassword request, Config config, HttpContext ctx)
+
+    {
+        int? userId = ctx.Session.GetInt32("user_id");
+        if (userId == null)
+        {
+            return Results.BadRequest("You must be logged in. \nTry again");
+        }
+        if (request.newPassword != request.ConfirmPassword)
+        {
+            return Results.BadRequest("Password does not match. \nTry again");
+        }
+        string query =
+        @"
+            UPDATE users 
+            SET password = @newPassword
+            WHERE user_Id = @Id AND password = @oldPassword
+            ";
+
+        var parameters = new MySqlParameter[]
+        {
+                new ("@newPassword", request.newPassword),
+                new ("@oldPassword", request.oldPassword),
+                new("@Id", userId)
+        };
+
+        try
+        {
+            int rowsAffected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, query, parameters);
+
+            if (rowsAffected == 0)
+            {
+                return Results.BadRequest("Incorrect old password. Try again.");
+            }
+            return Results.Ok(new { message = "Your password was change successfully" });
+        }
+        catch (MySqlException error)
+        {
+            return Results.BadRequest($"Database error: {error.Message}");
+        }
+    }
+
+
+
 }

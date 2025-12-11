@@ -36,6 +36,7 @@ app.MapGet("/countries", Country.GetCountry);
 // Profile
 app.MapGet("/profile", Users.ViewProfile);
 app.MapPut("/profile/update", UserHandler.UpdateProfile);
+app.MapPut("/profile/changePassword", UserHandler.ChangePasswordRequest);
 
 // Reset Database
 app.MapDelete("/db", Sql.db_reset_to_default);
