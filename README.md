@@ -43,9 +43,6 @@ Body raw JSON:
 }
 
 
-
-
-
 ### Logga in
 
 Metod: POST
@@ -59,7 +56,12 @@ Body raw JSON:
 
     "password": "123"
 }
-}
+
+
+### View profile
+
+Metod: GET 
+URL: /profile 
 
 
 ### hämta Countries
@@ -79,6 +81,7 @@ Body raw JSON:
 
 }  
 
+
 ### Update profile (email, username, password)
 
 Metod: PUT
@@ -91,6 +94,7 @@ Body raw JSON:
     "password" : "....",
     "ConfirmPassword" : "...."
 }
+
 
 ### UPDATE password(password)
 
