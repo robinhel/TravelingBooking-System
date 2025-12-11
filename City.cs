@@ -9,12 +9,16 @@ public static class City
 
     public static async Task<IResult> AddCity(CityRequest request, Config config, HttpContext ctx)
     {
+        string? role = await Permission.GetUserRole(config, ctx);
+        if (!Permission.IsAdmin(role))
+            return Results.Forbid();
+
         string query = "INSERT INTO cities (countries_id, name, culinary) VALUES (@countries_id, @name, @culinary)";
         var parameters = new MySqlParameter[]
         {
             new("@countries_id", request.CountryId),
             new("@name", request.Name),
-            new("@culinary", request.Culinary?? string.Empty)
+            new("@culinary", request.Culinary)
         };
 
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, query, parameters);
@@ -37,9 +41,9 @@ public static class City
         {
             list.Add (new
             {
-                CityId = result.GetInt32("city_id"),
-                Name = result.GetString("name"),
-                Culinary = result.IsDBNull(result.GetOrdinal("culinary"))? "" : result.GetString("culinary")
+                CityId = result.GetInt32(0),
+                Name = result.GetString(1),
+                Culinary = result.GetString(2)
             });
         }
 

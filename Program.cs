@@ -35,7 +35,7 @@ app.MapGet("/countries", Country.GetCountry);
 
 //cities
 app.MapPost("/cities", City.AddCity);
-app.MapGet("/cities/{countryId}", City.GetCityByCountry);
+app.MapGet("/cities", City.GetCityByCountry);
 
 // Profile
 app.MapGet("/profile", Users.ViewProfile);
