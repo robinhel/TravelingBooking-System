@@ -36,21 +36,22 @@ public static class Sql
         city_id INT PRIMARY KEY AUTO_INCREMENT,
         countries_id INT NOT NULL,
         name VARCHAR(254) NOT NULL,
+        culinary TEXT,
         FOREIGN KEY (countries_id) REFERENCES countries(countries_id)
         )
     """;
 
         string cities_insert = """
-        INSERT INTO cities (countries_id, name)
+        INSERT INTO cities (countries_id, name, culinary)
         VALUES
-        (1, 'Stockholm'),
-        (1, 'Gothenburg'),
+        (1, 'Stockholm', 'Swedish meatballs'),
+        (1, 'Gothenburg', 'Shrimp sandwich'),
 
-        (2, 'Oslo'),
-        (2, 'Bergen'),
+        (2, 'Oslo', 'Mutton and Cabbage stem'),
+        (2, 'Bergen', 'Bergen fish soup'),
         
-        (3, 'Rome'),
-        (3, 'Milan');
+        (3, 'Rome', 'Cheese and pepper pasta'),
+        (3, 'Milan', 'Risotto alla Milanese');
     """;
 
         //-------------------------------------------------------------------------------------------------
