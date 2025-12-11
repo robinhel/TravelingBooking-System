@@ -91,3 +91,15 @@ Body raw JSON:
     "password" : "....",
     "ConfirmPassword" : "...."
 }
+
+### UPDATE password(password)
+
+Metod: PUT 
+URL: /profile/changePassword 
+
+Body raw JSON: 
+{
+    "oldPassword" : "GAMLA LÖSENORD (123)",
+    "newPassword" : "NYTT LÖSENORD",
+    "ConfirmPassword" : "CONFIRMA DITT LÖSENORD"
+}
