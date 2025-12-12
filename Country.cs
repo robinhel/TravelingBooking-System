@@ -65,7 +65,7 @@ public static class Country
             {
                 return Results.BadRequest($"No countries with this id: {id} was found. Try again");
             }
-            return Results.Ok($"City with ID: {id} has been deleted. ");
+            return Results.Ok($"Country with ID: {id} has been deleted. ");
         }
         catch (MySqlException error)
         {
