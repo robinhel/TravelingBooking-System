@@ -28,6 +28,8 @@ app.UseSession();
 
 app.MapPost("/create/account", LoginHandler.CreateAccount);
 app.MapPost("/login", LoginHandler.Login);
+app.MapPost("/search", SearchHandler.SearchFoodAndGetHotels);
+
 
 //countries
 app.MapPost("/countries", Country.AddCountry);
@@ -38,6 +40,14 @@ app.MapDelete("/countries/{id}", Country.DeleteCountry);
 app.MapPost("/cities", City.AddCity);
 app.MapGet("/cities", City.GetCityByCountry);
 //app.MapDelete("/cities/{id}", City.DeleteCities);
+
+//hotels
+app.MapPost("/hotels", Hotel.AddHotel);
+app.MapGet("/hotels", Hotel.GetHotelByCity);
+
+//rooms
+app.MapPost("/rooms", Rooms.AddRoom);
+app.MapGet("/hotels/{hotelId}/rooms", Rooms.GetRooms);
 
 // Profile
 app.MapGet("/profile", Users.ViewProfile);

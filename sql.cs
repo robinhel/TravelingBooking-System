@@ -11,9 +11,10 @@ public static class Sql
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS bookings");
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS rooms");
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS hotels");
+        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS users");
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS cities");
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS countries");
-        await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "DROP TABLE IF EXISTS users");
+
 
 
         string countries_table = """ 
@@ -35,14 +36,15 @@ public static class Sql
         CREATE TABLE cities(
         city_id INT PRIMARY KEY AUTO_INCREMENT,
         countries_id INT NOT NULL,
-        name VARCHAR(254) NOT NULL,
-        culinary TEXT,
+        city_name VARCHAR(254) NOT NULL,
+        food_name VARCHAR(254),
+        food_description VARCHAR(254),
         FOREIGN KEY (countries_id) REFERENCES countries(countries_id)
         )
     """;
 
         string cities_insert = """
-        INSERT INTO cities (countries_id, name, culinary)
+        INSERT INTO cities (countries_id, city_name, food_name)
         VALUES
         (1, 'Stockholm', 'Swedish meatballs'),
         (1, 'Gothenburg', 'Shrimp sandwich'),
@@ -143,19 +145,21 @@ public static class Sql
         string bookings_table = """
         CREATE TABLE bookings(
         booking_id INT PRIMARY KEY AUTO_INCREMENT,
+        rooms_id INT NOT NULL,
         user_id INT NOT NULL,
         Check_IN DATE NOT NULL,
         Check_OUT DATE NOT NULL,
+        FOREIGN KEY(rooms_id) REFERENCES rooms(rooms_id),
         FOREIGN KEY(user_id) REFERENCES users(user_id),
         Status ENUM('Pending', 'Confirmed', 'Cancelled') NOT NULL DEFAULT 'Pending'
         )
     """;
 
         string insert_bookings = """
-        INSERT INTO bookings (user_id, Check_IN, Check_OUT, Status)
+        INSERT INTO bookings (user_id, rooms_id, Check_IN, Check_OUT, Status)
         VALUES
-        (1, '2025-06-10', '2025-06-15', 'Confirmed'),
-        (2, '2025-07-01', '2025-07-05', 'Pending');
+        (1, 2, '2025-06-10', '2025-06-15', 'Confirmed'),
+        (2, 3, '2025-07-01', '2025-07-05', 'Pending');
         """;
 
         //-------------------------------------------------------------------------------------------------
