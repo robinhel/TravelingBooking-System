@@ -60,8 +60,8 @@ public static class Country
         };
         try
         {
-            int rowsAffected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, query, parameters);
-            if (rowsAffected == 0)
+            int Affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, query, parameters);
+            if (Affected == 0)
             {
                 return Results.BadRequest($"No countries with this id: {id} was found. Try again");
             }

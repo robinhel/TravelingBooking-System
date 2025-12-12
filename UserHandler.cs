@@ -84,9 +84,9 @@ public static class UserHandler
 
         try
         {
-            int rowsAffected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, query, parameters);
+            int Affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, query, parameters);
 
-            if (rowsAffected == 0)
+            if (Affected == 0)
             {
                 return Results.BadRequest("Incorrect old password. Try again.");
             }
