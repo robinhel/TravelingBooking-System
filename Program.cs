@@ -34,10 +34,12 @@ app.MapPost("/search", SearchHandler.SearchFoodAndGetHotels);
 //countries
 app.MapPost("/countries", Country.AddCountry);
 app.MapGet("/countries", Country.GetCountry);
+app.MapDelete("/countries/{id}", Country.DeleteCountry);
 
 //cities
 app.MapPost("/cities", City.AddCity);
 app.MapGet("/cities", City.GetCityByCountry);
+//app.MapDelete("/cities/{id}", City.DeleteCities);
 
 //hotels
 app.MapPost("/hotels", Hotel.AddHotel);

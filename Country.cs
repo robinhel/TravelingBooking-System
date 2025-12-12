@@ -31,7 +31,7 @@ public static class Country
         var list = new List<object>();
         while (await result.ReadAsync())
         {
-            list.Add (new
+            list.Add(new
             {
                 CountryId = result.GetInt32(0),
                 Name = result.GetString(1),
@@ -40,7 +40,48 @@ public static class Country
 
         return Results.Ok(list);
     }
+
+
+    public static async Task<IResult> DeleteCountry(int id, Config config, HttpContext ctx)
+    {
+        string? role = await Permission.GetUserRole(config, ctx);
+        if (!Permission.IsAdmin(role))
+        {
+            return Results.BadRequest("You don't have the permission to access this method ");
+        }
+
+        string query =
+        @" DELETE FROM countries WHERE countries_id = @id;
+                ";
+
+        var parameters = new MySqlParameter[]
+        {
+                  new("@id", id)
+        };
+        try
+        {
+            int Affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, query, parameters);
+            if (Affected == 0)
+            {
+                return Results.BadRequest($"No countries with this id: {id} was found. Try again");
+            }
+            return Results.Ok($"Country with ID: {id} has been deleted. ");
+        }
+        catch (MySqlException error)
+        {
+            return Results.BadRequest($"Database error: {error.Message}");
+        }
+
+    }
+
+
+
 }
+
+
+
+
+
 /*
 
 

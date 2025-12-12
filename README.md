@@ -89,10 +89,12 @@ URL: /profile/update
 
 Body raw JSON:
 {
+
     "name" : ".....",
     "email" : ".....",
     "password" : "....",
     "ConfirmPassword" : "...."
+
 }
 
 
@@ -103,7 +105,20 @@ URL: /profile/changePassword
 
 Body raw JSON: 
 {
+
     "oldPassword" : "GAMLA LÖSENORD (123)",
     "newPassword" : "NYTT LÖSENORD",
     "ConfirmPassword" : "CONFIRMA DITT LÖSENORD"
+
 }
+
+### DELETE country(AS A ADMIN)
+
+(Hämta countries genom att ändra METOD: GET, URL: /countries. För att enklare se vilka ID:s alla länder har. )
+
+
+Metod: DELETE
+URL: /countries/{id} (Skriv in det ID landet har som du vill ta bort)
+
+
+### DELETE cities(AS A ADMIN)

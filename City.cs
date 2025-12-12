@@ -1,5 +1,8 @@
 using MySql.Data.MySqlClient;
 using Microsoft.AspNetCore.Http;
+using MySqlX.XDevAPI.Common;
+using System.Reflection.Metadata.Ecma335;
+using System.Reflection.Metadata;
 
 namespace server;
 
@@ -39,7 +42,7 @@ public static class City
         var list = new List<object>();
         while (await result.ReadAsync())
         {
-            list.Add (new
+            list.Add(new
             {
                 CityId = result.GetInt32(0),
                 Name = result.GetString(1),
@@ -49,4 +52,31 @@ public static class City
 
         return Results.Ok(list);
     }
+    /*
+    public static async Task<IResult> DeleteCities(int id, Config config, HttpContent ctx)
+    {
+        string? role = await Permission.GetUserRole(config, ctx);
+        if (!Permission.IsAdmin(role))
+        {
+            return Results.BadRequest("You dont have the permission to use this service. ");
+        }
+
+        string query = "DELETE FROM cities WHERE cities_id = @id";
+
+        var parameters = new MySqlParameter[]
+        {
+            new("@id", id)
+        };
+        try
+        {
+            int Affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, query, parameters);
+            if (Affected == 0)
+            {
+                return Results.BadRequest($"No cities with that id: {id} was found. Try again");
+            }
+            return Results.Ok($"Citie with id: {id} was successfully deleted");
+
+        }
+    }
+    */
 }
