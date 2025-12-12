@@ -145,11 +145,11 @@ public static class Sql
         string bookings_table = """
         CREATE TABLE bookings(
         booking_id INT PRIMARY KEY AUTO_INCREMENT,
-        room_id INT NOT NULL,
+        rooms_id INT NOT NULL,
         user_id INT NOT NULL,
         Check_IN DATE NOT NULL,
         Check_OUT DATE NOT NULL,
-        FOREIGN KEY(rooms_id) REFERENCE rooms(rooms_id),
+        FOREIGN KEY(rooms_id) REFERENCES rooms(rooms_id),
         FOREIGN KEY(user_id) REFERENCES users(user_id),
         Status ENUM('Pending', 'Confirmed', 'Cancelled') NOT NULL DEFAULT 'Pending'
         )
