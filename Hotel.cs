@@ -24,23 +24,31 @@ public static class Hotel
         return Results.Ok("Hotel added!");
     }
     
+    // GET /hotels/{cityId)} - return hotels for a given city only
     public static async Task<IResult> GetHotelByCity(int cityId, Config config)
     {
-        string query = """
-        SELECT hotels.hotel_id, hotels.name, cities.name 
+        string query = @"
+        SELECT hotels.hotel_id, hotels.name AS hotel_name, cities.city_id, cities.city_name 
         FROM hotels JOIN cities ON hotels.city_id = cities.city_id
-        """;
+        WHERE cities.city_id = @cityId
+        ";
 
-        using var result = await MySqlHelper.ExecuteReaderAsync(config.connectionString, query);
+        var parameters = new MySqlParameter[]
+        {
+            new("@cityId", cityId)
+        };
+
+        using var reader = await MySqlHelper.ExecuteReaderAsync(config.connectionString, query);
 
         var list = new List<object>();
-        while (await result.ReadAsync())
+        while (await reader.ReadAsync())
         {
             list.Add (new
             {
-                HotelId = result.GetInt32(0),
-                HotelName = result.GetString(1),
-                City = result.GetString(2)
+                HotelId = reader.GetInt32("hotel_id"),
+                HotelName = reader.GetString("hotel_name"),
+                CityId = reader.GetString("city_id"),
+                CityName = reader.GetString("city_name")
             });
         }
 

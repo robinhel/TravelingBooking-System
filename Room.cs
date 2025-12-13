@@ -11,12 +11,12 @@ public static class Rooms
         if (!Permission.IsAdmin(role))
             return Results.Forbid();
 
-        string query = "INSERT INTO rooms (hotel_id, roomNumber, roomCapacity, price) VALUES (@hotel_id, @roomNumber, @roomCapacity, @price)";
+        string query = "INSERT INTO rooms (hotel_id, number, capacity, price) VALUES (@hotel_id, @number, @capacity, @price)";
         var parameters = new MySqlParameter[]
         {
             new("@hotel_id", request.HotelId),
-            new("@roomNumber", request.RoomNumber),
-            new("@roomCapacity", request.RoomCapacity),
+            new("@number", request.RoomNumber),
+            new("@capacity", request.RoomCapacity),
             new("@price", request.Price)
         };
 
@@ -32,19 +32,22 @@ public static class Rooms
         FROM rooms WHERE hotel_id=@hotel_id
         """;
 
-        var parameters = new MySqlParameter[] { new("@hotel_id", hotelId) };
+        var parameters = new MySqlParameter[]
+        { 
+            new("@hotel_id", hotelId) 
+        };
 
-        using var result = await MySqlHelper.ExecuteReaderAsync(config.connectionString, query, parameters);
+        using var reader = await MySqlHelper.ExecuteReaderAsync(config.connectionString, query, parameters);
 
         var list = new List<object>();
-        while (await result.ReadAsync())
+        while (await reader.ReadAsync())
         {
             list.Add (new
             {
-                RoomId = result.GetInt32(0),
-                RoomName = result.GetString(1),
-                RoomCapacity = result.GetString(2),
-                Price = result.GetString(3)
+                RoomId = reader.GetInt32("rooms_id"),
+                RoomName = reader.GetString("number"),
+                RoomCapacity = reader.GetString("capacity"),
+                Price = reader.GetString("price")
             });
         }
 
