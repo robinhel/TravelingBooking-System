@@ -34,6 +34,7 @@ app.MapPost("/search", SearchHandler.SearchFoodAndGetHotels);
 //countries
 app.MapPost("/countries", Country.AddCountry);
 app.MapGet("/countries", Country.GetCountry);
+app.MapDelete("/countries/{id}", Country.DeleteCountry);
 
 //cities
 app.MapPost("/cities", City.AddCity);

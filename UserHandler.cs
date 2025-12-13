@@ -62,11 +62,11 @@ public static class UserHandler
         int? userId = ctx.Session.GetInt32("user_id");
         if (userId == null)
         {
-            return Results.BadRequest("You must be logged in. \nTry again");
+            return Results.BadRequest("You must be logged in. Try again");
         }
         if (request.newPassword != request.ConfirmPassword)
         {
-            return Results.BadRequest("Password does not match. \nTry again");
+            return Results.BadRequest("Password does not match. Try again");
         }
         string query =
         @"
@@ -84,9 +84,9 @@ public static class UserHandler
 
         try
         {
-            int rowsAffected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, query, parameters);
+            int Affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, query, parameters);
 
-            if (rowsAffected == 0)
+            if (Affected == 0)
             {
                 return Results.BadRequest("Incorrect old password. Try again.");
             }
