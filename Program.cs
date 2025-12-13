@@ -38,12 +38,11 @@ app.MapDelete("/countries/{id}", Country.DeleteCountry);
 
 //cities
 app.MapPost("/cities", City.AddCity);
-app.MapGet("/cities", City.GetCityByCountry);
-//app.MapDelete("/cities/{id}", City.DeleteCities);
+app.MapGet("/cities/{countryId}", City.GetCityByCountry);
 
 //hotels
 app.MapPost("/hotels", Hotel.AddHotel);
-app.MapGet("/hotels", Hotel.GetHotelByCity);
+app.MapGet("/hotels/{cityId}", Hotel.GetHotelByCity);
 
 //rooms
 app.MapPost("/rooms", Rooms.AddRoom);

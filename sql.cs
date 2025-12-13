@@ -145,18 +145,18 @@ public static class Sql
         string bookings_table = """
         CREATE TABLE bookings(
         booking_id INT PRIMARY KEY AUTO_INCREMENT,
-        rooms_id INT NOT NULL,
+        room_id INT NOT NULL,
         user_id INT NOT NULL,
         Check_IN DATE NOT NULL,
         Check_OUT DATE NOT NULL,
-        FOREIGN KEY(rooms_id) REFERENCES rooms(rooms_id),
-        FOREIGN KEY(user_id) REFERENCES users(user_id),
-        Status ENUM('Pending', 'Confirmed', 'Cancelled') NOT NULL DEFAULT 'Pending'
+        Status ENUM('Pending', 'Confirmed', 'Cancelled') NOT NULL DEFAULT 'Pending',
+        FOREIGN KEY(room_id) REFERENCES rooms(rooms_id),
+        FOREIGN KEY(user_id) REFERENCES users(user_id)
         )
     """;
 
         string insert_bookings = """
-        INSERT INTO bookings (user_id, rooms_id, Check_IN, Check_OUT, Status)
+        INSERT INTO bookings (user_id, room_id, Check_IN, Check_OUT, Status)
         VALUES
         (1, 2, '2025-06-10', '2025-06-15', 'Confirmed'),
         (2, 3, '2025-07-01', '2025-07-05', 'Pending');
