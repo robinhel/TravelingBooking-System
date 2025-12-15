@@ -173,4 +173,27 @@ Metod: DELETE
 URL: /countries/{id} (Skriv in det ID landet har som du vill ta bort)
 
 
-### DELETE cities(AS A ADMIN)
+### Find hotels by searching for different food names
+
+Metod: POST
+URL: /search/food
+
+Body raw JSON: 
+{
+    "food" = "Swe"
+}
+
+Will give you information about the hotel and country that serves Swedish Meatballs.
+
+### Find available rooms by date
+
+Metod: POST
+URL: /search/rooms
+
+Body raw JSON: 
+{
+    {
+    "CheckInDate": "2025-10-01",
+    "CheckOutDate": "2025-10-05"
+    }
+}
