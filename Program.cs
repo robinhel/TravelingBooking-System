@@ -46,7 +46,7 @@ app.MapGet("/hotels/{cityId}", Hotel.GetHotelByCity);
 
 //rooms
 app.MapPost("/rooms", Rooms.AddRoom);
-app.MapGet("/hotels/{hotelId}/rooms", Rooms.GetRooms);
+app.MapGet("/rooms/{hotelId}", Rooms.GetRooms);
 
 // Profile
 app.MapGet("/profile", Users.ViewProfile);

@@ -21,7 +21,7 @@ public static class City
         var parameters = new MySqlParameter[]
         {
             new("@countries_id", request.CountryId),
-            new("@name", request.CityName),
+            new("@city_name", request.CityName),
             new("@food_name", request.FoodName ?? string.Empty),
         };
 
