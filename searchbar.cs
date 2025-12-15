@@ -104,7 +104,7 @@ public static class SearchHandler
 
         string query = $@"
             SELECT 
-                R.rooms_id, 
+                R.room_id, 
                 R.number, 
                 R.Price, 
                 R.capacity,
@@ -116,12 +116,11 @@ public static class SearchHandler
             JOIN cities AS CI ON H.city_id = CI.city_id
             JOIN countries AS CN ON CI.countries_id = CN.countries_id
             
-            WHERE R.rooms_id NOT IN (
-                SELECT DISTINCT RBB.rooms_id
+            WHERE R.room_id NOT IN (
+                SELECT DISTINCT RBB.room_id
                 FROM rooms_by_booking AS RBB
                 JOIN bookings AS B ON RBB.booking_id = B.booking_id
-                WHERE B.Status = 'Confirmed'
-                  AND B.Check_OUT > @CheckInDate 
+                WHERE B.Check_OUT > @CheckInDate 
                   AND B.Check_IN < @CheckOutDate
             )";
 

@@ -149,17 +149,16 @@ public static class Sql
         user_id INT NOT NULL,
         Check_IN DATE NOT NULL,
         Check_OUT DATE NOT NULL,
-        Status ENUM('Pending', 'Confirmed', 'Cancelled') NOT NULL DEFAULT 'Pending',
         FOREIGN KEY(room_id) REFERENCES rooms(room_id),
         FOREIGN KEY(user_id) REFERENCES users(user_id)
         )
     """;
 
         string insert_bookings = """
-        INSERT INTO bookings (user_id, room_id, Check_IN, Check_OUT, Status)
+        INSERT INTO bookings (user_id, room_id, Check_IN, Check_OUT)
         VALUES
-        (1, 2, '2025-06-10', '2025-06-15', 'Confirmed'),
-        (2, 3, '2025-07-01', '2025-07-05', 'Pending');
+        (1, 2, '2025-06-10', '2025-06-15'),
+        (2, 3, '2025-07-01', '2025-07-05');
         """;
 
         //-------------------------------------------------------------------------------------------------
