@@ -28,6 +28,7 @@ app.UseSession();
 
 app.MapPost("/create/account", LoginHandler.CreateAccount);
 app.MapPost("/login", LoginHandler.Login);
+app.MapPost("/logout", Logout.LogoutCookie);
 app.MapPost("/search/food", SearchHandler.SearchFoodAndGetHotels);
 
 
