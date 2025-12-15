@@ -83,7 +83,7 @@ public static class Sql
         CREATE TABLE Hotels (
             hotel_id INT PRIMARY KEY  AUTO_INCREMENT,
             name VARCHAR(254) NOT NULL,
-            city_id INT,
+            city_id INT NOT NULL,
             FOREIGN KEY (city_id) REFERENCES cities (city_id)
         )        
     """;
@@ -100,7 +100,7 @@ public static class Sql
         ('Bergen Hotel', 4),
 
         ('Rome Hotel', 5),
-        ('Milan Hotel', 6);
+        ('Milan Hotel', 6)
     """;
 
 
@@ -139,27 +139,26 @@ public static class Sql
 
         (601, 240, 2, 6),
         (602, 300, 4, 6);
-""";
+    """;
         //-------------------------------------------------------------------------------------------------
 
         string bookings_table = """
-        CREATE TABLE bookings(
+        CREATE TABLE bookings (
         booking_id INT PRIMARY KEY AUTO_INCREMENT,
-        room_id INT NOT NULL,
         user_id INT NOT NULL,
-        Check_IN DATE NOT NULL,
-        Check_OUT DATE NOT NULL,
-        FOREIGN KEY(room_id) REFERENCES rooms(room_id),
-        FOREIGN KEY(user_id) REFERENCES users(user_id)
-        )
-    """;
+        check_in DATE NOT NULL,
+        check_out DATE NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+)
+""";
 
         string insert_bookings = """
-        INSERT INTO bookings (user_id, room_id, Check_IN, Check_OUT)
+        INSERT INTO bookings (user_id, check_in, check_out)
         VALUES
-        (1, 2, '2025-06-10', '2025-06-15'),
-        (2, 3, '2025-07-01', '2025-07-05');
+        (1, '2025-06-10', '2025-06-15'),
+        (2, '2025-07-01', '2025-07-05');
         """;
+
 
         //-------------------------------------------------------------------------------------------------
 
@@ -172,14 +171,15 @@ public static class Sql
         FOREIGN KEY (booking_id) REFERENCES bookings (booking_id),
         FOREIGN KEY (room_id) REFERENCES rooms (room_id)
         )
-    """;
+        """;
         string insert_rooms_by_booking = """
         INSERT INTO rooms_by_booking(booking_id, room_id)
         VALUES
         (1, 1),
         (1, 2),
         (2, 3);
-        """;
+    """;
+
         //-------------------------------------------------------------------------------------------------
 
 

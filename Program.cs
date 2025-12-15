@@ -31,6 +31,9 @@ app.MapPost("/login", LoginHandler.Login);
 app.MapPost("/logout", Logout.LogoutCookie);
 app.MapPost("/search/food", SearchHandler.SearchFoodAndGetHotels);
 
+//booking
+app.MapPost("/booking", BookingHandler.CreateBooking);
+
 
 //countries
 app.MapPost("/countries", Country.AddCountry);
