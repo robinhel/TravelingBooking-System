@@ -30,6 +30,9 @@ app.MapPost("/create/account", LoginHandler.CreateAccount);
 app.MapPost("/login", LoginHandler.Login);
 app.MapPost("/search", SearchHandler.SearchFoodAndGetHotels);
 
+//booking
+app.MapPost("/booking", BookingHandler.CreateBooking);
+
 
 //countries
 app.MapPost("/countries", Country.AddCountry);

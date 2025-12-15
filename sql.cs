@@ -83,7 +83,7 @@ public static class Sql
         CREATE TABLE Hotels (
             hotel_id INT PRIMARY KEY  AUTO_INCREMENT,
             name VARCHAR(254) NOT NULL,
-            city_id INT,
+            city_id INT NOT NULL,
             FOREIGN KEY (city_id) REFERENCES cities (city_id)
         )        
     """;
@@ -100,7 +100,7 @@ public static class Sql
         ('Bergen Hotel', 4),
 
         ('Rome Hotel', 5),
-        ('Milan Hotel', 6);
+        ('Milan Hotel', 6)
     """;
 
 
@@ -110,12 +110,12 @@ public static class Sql
 
         string rooms_table = """ 
         CREATE TABLE rooms(
-        rooms_id INT PRIMARY KEY AUTO_INCREMENT,
-        number INT NOT NULL,
-        Price INT NOT NULL,
-        capacity INT NOT NULL,
-        hotel_id INT NOT NULL,
-        FOREIGN KEY (hotel_id) REFERENCES hotels(hotel_id)
+            rooms_id INT PRIMARY KEY AUTO_INCREMENT,
+            number INT NOT NULL,
+            price INT NOT NULL,
+            capacity INT NOT NULL,
+            hotel_id INT NOT NULL,
+            FOREIGN KEY (hotel_id) REFERENCES hotels(hotel_id)
         )
     """;
 
@@ -139,48 +139,47 @@ public static class Sql
 
         (601, 240, 2, 6),
         (602, 300, 4, 6);
-""";
+    """;
         //-------------------------------------------------------------------------------------------------
 
         string bookings_table = """
-        CREATE TABLE bookings(
+        CREATE TABLE bookings (
         booking_id INT PRIMARY KEY AUTO_INCREMENT,
-        room_id INT NOT NULL,
         user_id INT NOT NULL,
-        Check_IN DATE NOT NULL,
-        Check_OUT DATE NOT NULL,
-        FOREIGN KEY(rooms_id) REFERENCE rooms(rooms_id),
-        FOREIGN KEY(user_id) REFERENCES users(user_id),
-        Status ENUM('Pending', 'Confirmed', 'Cancelled') NOT NULL DEFAULT 'Pending'
-        )
-    """;
+        check_in DATE NOT NULL,
+        check_out DATE NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+)
+""";
 
         string insert_bookings = """
-        INSERT INTO bookings (user_id, rooms_id, Check_IN, Check_OUT, Status)
+        INSERT INTO bookings (user_id, check_in, check_out)
         VALUES
-        (1, 2, '2025-06-10', '2025-06-15', 'Confirmed'),
-        (2, 3, '2025-07-01', '2025-07-05', 'Pending');
+        (1, '2025-06-10', '2025-06-15'),
+        (2, '2025-07-01', '2025-07-05');
         """;
+
 
         //-------------------------------------------------------------------------------------------------
 
 
-        string rooms_by_booking_table = """ 
-        CREATE TABLE rooms_by_booking(
-        rooms_by_booking_id INT PRIMARY KEY AUTO_INCREMENT,
-        booking_id INT,
-        rooms_id INT,
-        FOREIGN KEY (booking_id) REFERENCES bookings (booking_id),
-        FOREIGN KEY (rooms_id) REFERENCES rooms (rooms_id)
+        string rooms_by_booking_table = """
+        CREATE TABLE rooms_by_booking (
+            rooms_by_booking_id INT PRIMARY KEY AUTO_INCREMENT,
+            booking_id INT NOT NULL,
+            rooms_id INT NOT NULL,
+            FOREIGN KEY (booking_id) REFERENCES bookings(booking_id),
+            FOREIGN KEY (rooms_id) REFERENCES rooms(rooms_id)
         )
-    """;
+        """;
         string insert_rooms_by_booking = """
-        INSERT INTO rooms_by_booking(booking_id, rooms_id)
+        INSERT INTO rooms_by_booking (booking_id, rooms_id)
         VALUES
         (1, 1),
         (1, 2),
         (2, 3);
-        """;
+    """;
+
         //-------------------------------------------------------------------------------------------------
 
 

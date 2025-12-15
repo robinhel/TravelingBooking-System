@@ -2,134 +2,98 @@ using MySql.Data.MySqlClient;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace server;
 
 public static class BookingHandler
 {
-    public record BookingResult(
-        int BookingId,
-        int RoomId,
-        int HotelId,
-        string HotelName,
-        string CityName,
-        DateTime FromDate,
-        DateTime ToDate,
-        string RoomStatus
-    );
+    public record BookingRequest(int RoomId, DateTime FromDate, DateTime ToDate);
 
-    public record BookingRequest(
-        int RoomId,
-        DateTime FromDate,
-        DateTime ToDate
-    );
-
-    public static async Task<IResult> CreateBooking(BookingRequest request, Config config)
+    public static async Task<IResult> CreateBooking(BookingRequest request, Config config, HttpContext ctx)
     {
+        // HÄMTAR user_id FRÅN SESSION
+        int? userId = ctx.Session.GetInt32("user_id");
+
+        // OM INTE INLOGGAD, AVBRYT
+        if (userId == null)
+        {
+            return Results.Unauthorized();
+        }
+
         int roomId = request.RoomId;
-        DateTime from = request.FromDate;
-        DateTime to = request.ToDate;
 
-        string roomQuery = @"
-        SELECT
-            r.room_id,
-            h.hotel_id,
-            h.name,
-            c.name,
-            r.room_status
-        FROM rooms r
-        JOIN hotels h ON r.hotel_id = h.hotel_id
-        JOIN cities c ON h.city_id = c.city_id
-        WHERE r.room_id = @RoomId
-        ";
+        string checkAvailability = """
+        SELECT COUNT(*)
+        FROM bookings b
+        JOIN rooms_by_booking rb ON b.booking_id = rb.booking_id
+        WHERE rb.rooms_id = @RoomId
+        AND @FromDate < b.check_out
+        AND @ToDate > b.check_in
+        """;
 
-        string insertBooking = @"
-        INSERT INTO bookings (from_date, to_date)
-        VALUES (@FromDate, @ToDate);
+        string insertBooking = """
+        INSERT INTO bookings (user_id, check_in, check_out)
+        VALUES (@UserId, @CheckIn, @CheckOut);
         SELECT LAST_INSERT_ID();
-        ";
+        """;
 
-        string insertLink = @"
+        string insertRoomLink = """
         INSERT INTO rooms_by_booking (booking_id, rooms_id)
         VALUES (@BookingId, @RoomId)
-        ";
-
-        string updateRoom = @"
-        UPDATE rooms
-        SET room_status = 'unavailable'
-        WHERE room_id = @RoomId
-        ";
-
-        int RoomID;
-        int HotelID;
-        string HotelName;
-        string CityName;
-        string RoomStatus;
+        """;
 
         using (var connection = new MySqlConnection(config.connectionString))
         {
             await connection.OpenAsync();
 
-            using (var command = new MySqlCommand(roomQuery, connection))
+            using (var command = new MySqlCommand(checkAvailability, connection))
             {
-                command.Parameters.Add(new MySqlParameter("@RoomId", roomId));
+                command.Parameters.AddWithValue("@RoomId", roomId);
+                command.Parameters.AddWithValue("@FromDate", request.FromDate);
+                command.Parameters.AddWithValue("@ToDate", request.ToDate);
 
-                using (var reader = await command.ExecuteReaderAsync())
+                int conflicts = Convert.ToInt32(await command.ExecuteScalarAsync());
+
+                // OM DET FINNS MINST EN KROCK
+                if (conflicts > 0)
                 {
-                    if (!await reader.ReadAsync())
-                    {
-                        return Results.NotFound("Room not found");
-                    }
-
-                    RoomID = reader.GetInt32(0);
-                    HotelID = reader.GetInt32(1);
-                    HotelName = reader.GetString(2);
-                    CityName = reader.GetString(3);
-                    RoomStatus = reader.GetString(4);
+                    return Results.Json(
+                        new { message = "Room already booked for selected dates" },
+                        statusCode: StatusCodes.Status409Conflict
+                    );
                 }
             }
 
-            if (RoomStatus == "unavailable")
-            {
-                return Results.BadRequest("Room unavailable");
-            }
 
-            int newBookingId;
+            int bookingId;
+
+            // SKAPAR BOOKING MED user_id
             using (var command = new MySqlCommand(insertBooking, connection))
             {
-                command.Parameters.Add(new MySqlParameter("@FromDate", from));
-                command.Parameters.Add(new MySqlParameter("@ToDate", to));
+                command.Parameters.AddWithValue("@UserId", userId);
+                command.Parameters.AddWithValue("@CheckIn", request.FromDate);
+                command.Parameters.AddWithValue("@CheckOut", request.ToDate);
 
                 object result = await command.ExecuteScalarAsync();
-                newBookingId = Convert.ToInt32(result);
+                bookingId = Convert.ToInt32(result);
             }
 
-            using (var command = new MySqlCommand(insertLink, connection))
+            // KOPPLAR RUM TILL BOOKING
+            using (var command = new MySqlCommand(insertRoomLink, connection))
             {
-                command.Parameters.Add(new MySqlParameter("@BookingId", newBookingId));
-                command.Parameters.Add(new MySqlParameter("@RoomId", RoomID));
+                command.Parameters.AddWithValue("@BookingId", bookingId);
+                command.Parameters.AddWithValue("@RoomId", roomId);
                 await command.ExecuteNonQueryAsync();
             }
-
-            using (var command = new MySqlCommand(updateRoom, connection))
-            {
-                command.Parameters.Add(new MySqlParameter("@RoomId", RoomID));
-                await command.ExecuteNonQueryAsync();
-            }
-
-            var profile = new BookingResult(
-                newBookingId,
-                RoomID,
-                HotelID,
-                HotelName,
-                CityName,
-                from,
-                to,
-                "unavailable"
-            );
-
-            return Results.Ok(profile);
         }
+
+
+        return Results.Ok(new
+        {
+            message = "Booking created",
+            roomId = roomId,
+            from = request.FromDate,
+            to = request.ToDate
+        });
     }
 }

@@ -107,3 +107,22 @@ Body raw JSON:
     "newPassword" : "NYTT LÖSENORD",
     "ConfirmPassword" : "CONFIRMA DITT LÖSENORD"
 }
+
+
+### Create booking
+
+Metod: POST
+
+URL: /booking
+
+Body raw JSON:
+
+{
+
+  "roomId": 1,
+  "fromDate": "2025-06-10",
+  "toDate": "2025-06-15"
+
+}
+
+
