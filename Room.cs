@@ -11,13 +11,14 @@ public static class Rooms
         if (!Permission.IsAdmin(role))
             return Results.Forbid();
 
-        string query = "INSERT INTO rooms (hotel_id, roomNumber, roomCapacity, price) VALUES (@hotel_id, @roomNumber, @roomCapacity, @price)";
+        string query = "INSERT INTO rooms (number, price, capacity, hotel_id) VALUES (@number, @price, @capacity, @hotel_id)";
         var parameters = new MySqlParameter[]
         {
-            new("@hotel_id", request.HotelId),
-            new("@roomNumber", request.RoomNumber),
-            new("@roomCapacity", request.RoomCapacity),
-            new("@price", request.Price)
+            
+            new("@number", request.RoomNumber),
+            new("@price", request.Price),
+            new("@capacity", request.RoomCapacity),
+            new("@hotel_id", request.HotelId)
         };
 
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, query, parameters);
@@ -28,23 +29,26 @@ public static class Rooms
      public static async Task<IResult> GetRooms(int hotelId, Config config)
     {
         string query = """
-        SELECT rooms_id, number, capacity, price 
+        SELECT room_id, number, capacity, price 
         FROM rooms WHERE hotel_id=@hotel_id
         """;
 
-        var parameters = new MySqlParameter[] { new("@hotel_id", hotelId) };
+        var parameters = new MySqlParameter[]
+        { 
+            new("@hotel_id", hotelId) 
+        };
 
-        using var result = await MySqlHelper.ExecuteReaderAsync(config.connectionString, query, parameters);
+        using var reader = await MySqlHelper.ExecuteReaderAsync(config.connectionString, query, parameters);
 
         var list = new List<object>();
-        while (await result.ReadAsync())
+        while (await reader.ReadAsync())
         {
             list.Add (new
             {
-                RoomId = result.GetInt32(0),
-                RoomName = result.GetString(1),
-                RoomCapacity = result.GetString(2),
-                Price = result.GetString(3)
+                RoomId = reader.GetInt32("room_id"),
+                RoomName = reader.GetInt32("number"),
+                Price = reader.GetInt32("price"),
+                RoomCapacity = reader.GetInt32("capacity")
             });
         }
 

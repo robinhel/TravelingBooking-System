@@ -19,6 +19,24 @@ public static class SearchHandler
     string Food
     );
 
+    public record RoomSearchRequest(
+        string CheckInDate,
+        string CheckOutDate,
+        string? CountryName,
+        string? CityName,
+        string? HotelName
+    );
+
+    public record AvailableRoomResult(
+        int RoomID,
+        int RoomNumber,
+        int Price,
+        int Capacity,
+        string HotelName,
+        string CityName,
+        string CountryName
+    );
+
 
     public static async Task<IResult> SearchFoodAndGetHotels(SearchRequest request, Config config)
     {
@@ -80,5 +98,81 @@ public static class SearchHandler
 
 
     }
+    public static async Task<IResult> SearchAvailableRooms(RoomSearchRequest request, Config config)
+    {
+        if (string.IsNullOrWhiteSpace(request.CheckInDate) || string.IsNullOrWhiteSpace(request.CheckOutDate))
+        {
+            return Results.BadRequest("CheckInDate and CheckOutDate are required fields.");
+        }
 
+        string query = $@"
+            SELECT 
+                R.room_id, 
+                R.number, 
+                R.Price, 
+                R.capacity,
+                H.name AS HotelName, 
+                CI.city_name AS CityName,  
+                CN.name AS CountryName
+            FROM rooms AS R
+            JOIN Hotels AS H ON R.hotel_id = H.hotel_id
+            JOIN cities AS CI ON H.city_id = CI.city_id
+            JOIN countries AS CN ON CI.countries_id = CN.countries_id
+            
+            WHERE R.room_id NOT IN (
+                SELECT DISTINCT RBB.room_id
+                FROM rooms_by_booking AS RBB
+                JOIN bookings AS B ON RBB.booking_id = B.booking_id
+                WHERE B.Check_OUT > @CheckInDate 
+                  AND B.Check_IN < @CheckOutDate
+            )
+            AND (H.name LIKE CONCAT('%', @HotelName, '%') OR @HotelName IS NULL)
+            AND (CI.city_name LIKE CONCAT('%', @CityName, '%') OR @CityName IS NULL)
+            AND (CN.name LIKE CONCAT('%', @CountryName, '%') OR @CountryName IS NULL)
+            ORDER BY CountryName, CityName, HotelName, R.number;
+            ";
+
+        var parameters = new List<MySqlParameter>
+        {
+            new("@CheckInDate", request.CheckInDate),
+            new("@CheckOutDate", request.CheckOutDate),
+            new("@HotelName", string.IsNullOrEmpty(request.HotelName) ? (object)DBNull.Value : request.HotelName),
+            new("@CityName", string.IsNullOrEmpty(request.CityName) ? (object)DBNull.Value : request.CityName),
+            new("@CountryName", string.IsNullOrEmpty(request.CountryName) ? (object)DBNull.Value : request.CountryName)
+        };
+
+        var results = new List<AvailableRoomResult>();
+
+
+        using (var connection = new MySqlConnection(config.connectionString))
+        {
+            await connection.OpenAsync();
+            using (var command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddRange(parameters.ToArray());
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var room = new AvailableRoomResult(
+                            reader.GetInt32(0),
+                            reader.GetInt32(1),
+                            reader.GetInt32(2),
+                            reader.GetInt32(3),
+                            reader.GetString(4),
+                            reader.GetString(5),
+                            reader.GetString(6)
+                        );
+                        results.Add(room);
+                    }
+                }
+            }
+        }
+        if (results.Count == 0)
+        {
+            return Results.NotFound("Could not find any available rooms for the given dates.");
+
+        }
+        return Results.Ok(results);
+    }
 }

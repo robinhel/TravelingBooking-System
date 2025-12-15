@@ -1,5 +1,6 @@
 using MySql.Data.MySqlClient;
 using Microsoft.AspNetCore.Http;
+using System.Net;
 
 
 
@@ -42,6 +43,24 @@ public static class LoginHandler
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, AccountQuery, parameters);
 
         return Results.Ok("Account created");
+    }
+}
+
+public static class Logout
+{
+    public static async Task<IResult> LogoutCookie(Config config, HttpContext ctx)
+    {
+        int? IsLoggedIn = ctx.Session.GetInt32("user_id");
+
+        if (IsLoggedIn == null)
+        {
+            Results.NotFound("You are not logged in!");
+        }
+
+        ctx.Session.Remove("user_id");
+        ctx.Session.Clear();
+
+        return Results.Ok("Logged out successfully!");
     }
 }
 public static class Users
