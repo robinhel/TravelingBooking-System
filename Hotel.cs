@@ -38,7 +38,7 @@ public static class Hotel
             new("@cityId", cityId)
         };
 
-        using var reader = await MySqlHelper.ExecuteReaderAsync(config.connectionString, query);
+        using var reader = await MySqlHelper.ExecuteReaderAsync(config.connectionString, query, parameters);
 
         var list = new List<object>();
         while (await reader.ReadAsync())
@@ -47,7 +47,7 @@ public static class Hotel
             {
                 HotelId = reader.GetInt32("hotel_id"),
                 HotelName = reader.GetString("hotel_name"),
-                CityId = reader.GetString("city_id"),
+                CityId = reader.GetInt32("city_id"),
                 CityName = reader.GetString("city_name")
             });
         }

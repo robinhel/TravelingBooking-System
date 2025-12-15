@@ -11,13 +11,14 @@ public static class Rooms
         if (!Permission.IsAdmin(role))
             return Results.Forbid();
 
-        string query = "INSERT INTO rooms (hotel_id, number, capacity, price) VALUES (@hotel_id, @number, @capacity, @price)";
+        string query = "INSERT INTO rooms (number, price, capacity, hotel_id) VALUES (@number, @price, @capacity, @hotel_id)";
         var parameters = new MySqlParameter[]
         {
-            new("@hotel_id", request.HotelId),
+            
             new("@number", request.RoomNumber),
+            new("@price", request.Price),
             new("@capacity", request.RoomCapacity),
-            new("@price", request.Price)
+            new("@hotel_id", request.HotelId)
         };
 
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, query, parameters);
@@ -28,7 +29,7 @@ public static class Rooms
      public static async Task<IResult> GetRooms(int hotelId, Config config)
     {
         string query = """
-        SELECT rooms_id, number, capacity, price 
+        SELECT room_id, number, capacity, price 
         FROM rooms WHERE hotel_id=@hotel_id
         """;
 
@@ -44,10 +45,10 @@ public static class Rooms
         {
             list.Add (new
             {
-                RoomId = reader.GetInt32("rooms_id"),
-                RoomName = reader.GetString("number"),
-                RoomCapacity = reader.GetString("capacity"),
-                Price = reader.GetString("price")
+                RoomId = reader.GetInt32("room_id"),
+                RoomName = reader.GetInt32("number"),
+                Price = reader.GetInt32("price"),
+                RoomCapacity = reader.GetInt32("capacity")
             });
         }
 

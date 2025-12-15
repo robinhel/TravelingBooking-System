@@ -17,7 +17,7 @@ public static class Permission
         };
         object? result = await MySqlHelper.ExecuteScalarAsync(config.connectionString, query, parameters);
 
-        return result.ToString(); // "Admin" or "Traveler" or null
+        return result?.ToString(); // "Admin" or "Traveler" or null
     }
 
     // Helper to get active_user id
