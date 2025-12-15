@@ -6,8 +6,8 @@ public static class Permission
 {
     public static async Task<string?> GetUserRole(Config config, HttpContext ctx)
     {
-        var users_id = ctx.Session.GetInt32("user_id");
-        if (users_id is null)
+        int? users_id = ctx.Session.GetInt32("user_id");
+        if (users_id == null)
         return null;
 
         string query = "SELECT Role FROM users WHERE user_id=@users_id";
@@ -15,12 +15,13 @@ public static class Permission
         {
             new("@users_id", users_id.Value)
         };
-        object result = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, query, parameters);
+        object? result = await MySqlHelper.ExecuteScalarAsync(config.connectionString, query, parameters);
 
-        return result.ToString(); // "Admin" or "Traveler"
+        return result?.ToString(); // "Admin" or "Traveler" or null
     }
 
-    public static async Task<int?> GetUserId(Config config, HttpContext ctx)
+    // Helper to get active_user id
+    public static int? GetUserId(HttpContext ctx)
     {
         return ctx.Session.GetInt32("user_id");
     }

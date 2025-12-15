@@ -110,7 +110,7 @@ public static class Sql
 
         string rooms_table = """ 
         CREATE TABLE rooms(
-        rooms_id INT PRIMARY KEY AUTO_INCREMENT,
+        room_id INT PRIMARY KEY AUTO_INCREMENT,
         number INT NOT NULL,
         Price INT NOT NULL,
         capacity INT NOT NULL,
@@ -145,21 +145,20 @@ public static class Sql
         string bookings_table = """
         CREATE TABLE bookings(
         booking_id INT PRIMARY KEY AUTO_INCREMENT,
-        rooms_id INT NOT NULL,
+        room_id INT NOT NULL,
         user_id INT NOT NULL,
         Check_IN DATE NOT NULL,
         Check_OUT DATE NOT NULL,
-        FOREIGN KEY(rooms_id) REFERENCES rooms(rooms_id),
-        FOREIGN KEY(user_id) REFERENCES users(user_id),
-        Status ENUM('Pending', 'Confirmed', 'Cancelled') NOT NULL DEFAULT 'Pending'
+        FOREIGN KEY(room_id) REFERENCES rooms(room_id),
+        FOREIGN KEY(user_id) REFERENCES users(user_id)
         )
     """;
 
         string insert_bookings = """
-        INSERT INTO bookings (user_id, rooms_id, Check_IN, Check_OUT, Status)
+        INSERT INTO bookings (user_id, room_id, Check_IN, Check_OUT)
         VALUES
-        (1, 2, '2025-06-10', '2025-06-15', 'Confirmed'),
-        (2, 3, '2025-07-01', '2025-07-05', 'Pending');
+        (1, 2, '2025-06-10', '2025-06-15'),
+        (2, 3, '2025-07-01', '2025-07-05');
         """;
 
         //-------------------------------------------------------------------------------------------------
@@ -169,13 +168,13 @@ public static class Sql
         CREATE TABLE rooms_by_booking(
         rooms_by_booking_id INT PRIMARY KEY AUTO_INCREMENT,
         booking_id INT,
-        rooms_id INT,
+        room_id INT,
         FOREIGN KEY (booking_id) REFERENCES bookings (booking_id),
-        FOREIGN KEY (rooms_id) REFERENCES rooms (rooms_id)
+        FOREIGN KEY (room_id) REFERENCES rooms (room_id)
         )
     """;
         string insert_rooms_by_booking = """
-        INSERT INTO rooms_by_booking(booking_id, rooms_id)
+        INSERT INTO rooms_by_booking(booking_id, room_id)
         VALUES
         (1, 1),
         (1, 2),
