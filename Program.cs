@@ -39,6 +39,7 @@ app.MapDelete("/countries/{id}", Country.DeleteCountry);
 //cities
 app.MapPost("/cities", City.AddCity);
 app.MapGet("/cities/{countryId}", City.GetCityByCountry);
+app.MapDelete("/cities/{id}", City.DeleteCities);
 
 //hotels
 app.MapPost("/hotels", Hotel.AddHotel);
