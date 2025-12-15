@@ -197,3 +197,15 @@ Body raw JSON:
     "CheckOutDate": "2025-10-05"
     }
 }
+
+Its also possible to search for specific Countries or Hotels between the dates.
+
+{
+    "CheckInDate": "2025-06-10",
+    "CheckOutDate": "2025-06-12",
+    "CountryName": "input",
+    "CityName": "input",
+    "HotelName": "input"
+}
+
+

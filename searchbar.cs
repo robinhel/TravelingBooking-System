@@ -21,7 +21,10 @@ public static class SearchHandler
 
     public record RoomSearchRequest(
         string CheckInDate,
-        string CheckOutDate
+        string CheckOutDate,
+        string? CountryName,
+        string? CityName,
+        string? HotelName
     );
 
     public record AvailableRoomResult(
@@ -122,12 +125,20 @@ public static class SearchHandler
                 JOIN bookings AS B ON RBB.booking_id = B.booking_id
                 WHERE B.Check_OUT > @CheckInDate 
                   AND B.Check_IN < @CheckOutDate
-            )";
+            )
+            AND (H.name LIKE CONCAT('%', @HotelName, '%') OR @HotelName IS NULL)
+            AND (CI.city_name LIKE CONCAT('%', @CityName, '%') OR @CityName IS NULL)
+            AND (CN.name LIKE CONCAT('%', @CountryName, '%') OR @CountryName IS NULL)
+            ORDER BY CountryName, CityName, HotelName, R.number;
+            ";
 
         var parameters = new List<MySqlParameter>
         {
             new("@CheckInDate", request.CheckInDate),
-            new("@CheckOutDate", request.CheckOutDate)
+            new("@CheckOutDate", request.CheckOutDate),
+            new("@HotelName", string.IsNullOrEmpty(request.HotelName) ? (object)DBNull.Value : request.HotelName),
+            new("@CityName", string.IsNullOrEmpty(request.CityName) ? (object)DBNull.Value : request.CityName),
+            new("@CountryName", string.IsNullOrEmpty(request.CountryName) ? (object)DBNull.Value : request.CountryName)
         };
 
         var results = new List<AvailableRoomResult>();
