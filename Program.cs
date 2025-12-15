@@ -44,11 +44,13 @@ app.MapDelete("/cities/{id}", City.DeleteCities);
 //hotels
 app.MapPost("/hotels", Hotel.AddHotel);
 app.MapGet("/hotels/{cityId}", Hotel.GetHotelByCity);
+app.MapDelete("/hotels/{id}", Hotel.DeleteHotel);
 
 //rooms
 app.MapPost("/rooms", Rooms.AddRoom);
 app.MapGet("/hotels/{hotelId}/rooms", Rooms.GetRooms);
 app.MapPost("/search/rooms", SearchHandler.SearchAvailableRooms);
+app.MapDelete("/rooms/{id}", Rooms.DeleteRooms);
 
 // Profile
 app.MapGet("/profile", Users.ViewProfile);

@@ -75,7 +75,7 @@ public static class City
 
         if (numberOfHotels > 0)
         {
-            return Results.Conflict($"Can't delete the city. There are {numberOfHotels} still left. ");
+            return Results.Conflict($"Can't delete the city. There are {numberOfHotels} hotels still left. ");
         }
         string deleteQuery = "DELETE FROM cities WHERE city_id = @id";
 
