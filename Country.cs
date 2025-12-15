@@ -31,7 +31,7 @@ public static class Country
         var list = new List<object>();
         while (await result.ReadAsync())
         {
-            list.Add (new
+            list.Add(new
             {
                 CountryId = result.GetInt32(0),
                 Name = result.GetString(1),
