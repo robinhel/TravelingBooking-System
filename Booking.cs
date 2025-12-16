@@ -26,7 +26,7 @@ public static class BookingHandler
         SELECT COUNT(*)
         FROM bookings b
         JOIN rooms_by_booking rb ON b.booking_id = rb.booking_id
-        WHERE rb.rooms_id = @RoomId
+        WHERE rb.room_id = @RoomId
         AND @FromDate < b.check_out
         AND @ToDate > b.check_in
         """;
@@ -38,7 +38,7 @@ public static class BookingHandler
         """;
 
         string insertRoomLink = """
-        INSERT INTO rooms_by_booking (booking_id, rooms_id)
+        INSERT INTO rooms_by_booking (booking_id, room_id)
         VALUES (@BookingId, @RoomId)
         """;
 
