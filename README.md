@@ -164,13 +164,17 @@ Body raw JSON:
 
 }
 
-### DELETE country(AS A ADMIN)
-
-(Hämta countries genom att ändra METOD: GET, URL: /countries. För att enklare se vilka ID:s alla länder har. )
-
+### DELETE HOTELS (as an admin)
 
 Metod: DELETE
-URL: /countries/{id} (Skriv in det ID landet har som du vill ta bort)
+URL: /hotels/{ID}
+
+
+
+### DELETE ROOMS (as an admin)
+
+Metod: DELETE 
+URL: /rooms/{ID}
 
 
 ### Find hotels by searching for different food names

@@ -34,12 +34,10 @@ app.MapPost("/search/food", SearchHandler.SearchFoodAndGetHotels);
 //countries
 app.MapPost("/countries", Country.AddCountry);
 app.MapGet("/countries", Country.GetCountry);
-app.MapDelete("/countries/{id}", Country.DeleteCountry);
 
 //cities
 app.MapPost("/cities", City.AddCity);
 app.MapGet("/cities/{countryId}", City.GetCityByCountry);
-app.MapDelete("/cities/{id}", City.DeleteCities);
 
 //hotels
 app.MapPost("/hotels", Hotel.AddHotel);
@@ -50,7 +48,7 @@ app.MapDelete("/hotels/{id}", Hotel.DeleteHotel);
 app.MapPost("/rooms", Rooms.AddRoom);
 app.MapGet("/hotels/{hotelId}/rooms", Rooms.GetRooms);
 app.MapPost("/search/rooms", SearchHandler.SearchAvailableRooms);
-app.MapDelete("/rooms/{id}", Rooms.DeleteRooms);
+app.MapDelete("/rooms/{id}", Rooms.DeleteRoom);
 
 // Profile
 app.MapGet("/profile", Users.ViewProfile);

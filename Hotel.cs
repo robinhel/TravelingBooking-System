@@ -54,38 +54,43 @@ public static class Hotel
 
         return Results.Ok(list);
     }
+
     public static async Task<IResult> DeleteHotel(int id, Config config, HttpContext ctx)
     {
+        // 1. Admin-koll
         string? role = await Permission.GetUserRole(config, ctx);
-        if (!Permission.IsAdmin(role))
-            return Results.Forbid();
+        if (!Permission.IsAdmin(role)) return Results.Forbid();
 
+        var parameters = new MySqlParameter[] { new("@id", id) };
 
-        string checkQuery = "SELECT COUNT(*) FROM rooms WHERE hotel_id = @id";
-        var parameters = new MySqlParameter[]
-        {
-            new("@id", id)
-        };
-        object countResult = await MySqlHelper.ExecuteScalarAsync(config.connectionString, checkQuery, parameters);
-        int numberOfRooms = Convert.ToInt32(countResult);
-
-        if (numberOfRooms > 0)
-        {
-            return Results.Conflict($"Can't delete the the hotel. There is still {numberOfRooms} left registered. Please remove them first.");
-        }
-
-        string deleteQuery = "DELETE FROM hotels WHERE hotel_id = @id";
         try
         {
-            int affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteQuery, parameters);
 
-            if (affected == 0) return Results.NotFound("No hotels with that ID was found. Try again.");
+            string cleanLinks = @"
+            DELETE rbb FROM rooms_by_booking rbb
+            JOIN rooms r ON rbb.room_id = r.room_id
+            WHERE r.hotel_id = @id";
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cleanLinks, parameters);
 
-            return Results.Ok($"Hotel with ID :{id} was deleted.");
+            string cleanBookings = @"
+            DELETE b FROM bookings b
+            JOIN rooms r ON b.room_id = r.room_id
+            WHERE r.hotel_id = @id";
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cleanBookings, parameters);
+
+            string cleanRooms = "DELETE FROM rooms WHERE hotel_id = @id";
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cleanRooms, parameters);
+
+            string deleteHotel = "DELETE FROM hotels WHERE hotel_id = @id";
+            int affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteHotel, parameters);
+
+            if (affected == 0) return Results.NotFound($"No hotels with ID: {id} was found.");
+
+            return Results.Ok($"The hotel ID: {id} and all its rooms/bookings have been deleted.");
         }
         catch (MySqlException error)
         {
-            return Results.Problem($"Databas error: {error.Message}");
+            return Results.Problem($"Database error: {error.Message}");
         }
     }
 

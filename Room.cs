@@ -54,41 +54,33 @@ public static class Rooms
 
         return Results.Ok(list);
     }
-    public static async Task<IResult> DeleteRooms(int id, Config config, HttpContext ctx)
+    public static async Task<IResult> DeleteRoom(int id, Config config, HttpContext ctx)
     {
         string? role = await Permission.GetUserRole(config, ctx);
-        if (!Permission.IsAdmin(role))
-            return Results.Forbid();
+        if (!Permission.IsAdmin(role)) return Results.Forbid();
+
+        var parameters = new MySqlParameter[] { new("@id", id) };
+
         try
         {
-            string checkQuery = "SELECT COUNT(*) FROM bookings WHERE room_id = @id";
-            var parameters = new MySqlParameter[]
-            {
-                new("@id", id)
-            };
-            object countResult = await MySqlHelper.ExecuteScalarAsync(config.connectionString, checkQuery, parameters);
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString,
+                "DELETE FROM rooms_by_booking WHERE room_id = @id", parameters);
 
-            int numberOfBookings = Convert.ToInt32(countResult);
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString,
+                "DELETE FROM bookings WHERE room_id = @id", parameters);
 
-            if (numberOfBookings > 0)
-            {
-                return Results.Conflict($"Can't delete this room, there is {numberOfBookings} current bookings in this room ");
-            }
-            string deleteQuery = "DELETE FROM rooms WHERE room_id = @id";
-            int affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteQuery, parameters);
-            if (affected == 0)
-            {
-                return Results.NotFound($"No room with this ID: {id} could be found. Try again.");
-            }
-            return Results.Ok($"Room with ID: {id} was deleted succesfully");
+            // 2. Radera rummet
+            int affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString,
+                "DELETE FROM rooms WHERE room_id = @id", parameters);
+
+            if (affected == 0) return Results.NotFound($"No rooms with ID: {id} was found.");
+
+            return Results.Ok($"Room with ID: {id}) was succesfully delete");
         }
         catch (MySqlException error)
         {
             return Results.Problem($"Database error: {error.Message}");
         }
-
-
-
-
     }
 }
+

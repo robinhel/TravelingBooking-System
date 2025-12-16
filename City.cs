@@ -54,43 +54,4 @@ public static class City
 
         return Results.Ok(list);
     }
-
-    public static async Task<IResult> DeleteCities(int id, Config config, HttpContext ctx)
-    {
-        string? role = await Permission.GetUserRole(config, ctx);
-        if (!Permission.IsAdmin(role))
-        {
-            return Results.BadRequest("You dont have the permission to use this service. ");
-        }
-
-        string query = "SELECT COUNT(*) FROM hotels WHERE city_id = @id";
-
-        var parameters = new MySqlParameter[]
-        {
-            new("@id", id)
-        };
-        object countResult = await MySqlHelper.ExecuteScalarAsync(config.connectionString, query, parameters);
-
-        int numberOfHotels = Convert.ToInt32(countResult);
-
-        if (numberOfHotels > 0)
-        {
-            return Results.Conflict($"Can't delete the city. There are {numberOfHotels} hotels still left. ");
-        }
-        string deleteQuery = "DELETE FROM cities WHERE city_id = @id";
-
-        try
-        {
-            int affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteQuery, parameters);
-
-            if (affected == 0)
-                return Results.NotFound("No cities with that id was found. Try again.  ");
-            return Results.Ok($"City with ID: {id} has been deleted.");
-        }
-        catch (MySqlException error)
-        {
-            return Results.Problem($"Database error {error.Message}");
-        }
-    }
-
 }
