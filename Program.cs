@@ -33,6 +33,7 @@ app.MapPost("/search/food", SearchHandler.SearchFoodAndGetHotels);
 
 //booking
 app.MapPost("/booking", BookingHandler.CreateBooking);
+app.MapGet("/my/bookings", UserBooking.GetMyBookings);
 
 
 //countries
