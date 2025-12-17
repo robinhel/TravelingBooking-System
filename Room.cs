@@ -57,23 +57,28 @@ public static class Rooms
     public static async Task<IResult> DeleteRoom(int id, Config config, HttpContext ctx)
     {
         string? role = await Permission.GetUserRole(config, ctx);
-        if (!Permission.IsAdmin(role)) return Results.Forbid();
+        if (!Permission.IsAdmin(role))
+            return Results.Forbid();
 
-        var parameters = new MySqlParameter[] { new("@id", id) };
+        var parameters = new MySqlParameter[]
+        {
+            new("@id", id)
+        };
 
         try
         {
-            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString,
-                "DELETE FROM rooms_by_booking WHERE room_id = @id", parameters);
+            string deleteLinks = "DELETE FROM rooms_by_booking WHERE room_id = @id";
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteLinks, parameters);
 
-            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString,
-                "DELETE FROM bookings WHERE room_id = @id", parameters);
+            string deleteBookings = "DELETE FROM bookings WHERE room_id = @id";
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteBookings, parameters);
 
-            // 2. Radera rummet
-            int affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString,
-                "DELETE FROM rooms WHERE room_id = @id", parameters);
 
-            if (affected == 0) return Results.NotFound($"No rooms with ID: {id} was found.");
+            string deleteRoom = "DELETE FROM rooms WHERE room_id = @id";
+            int affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteRoom, parameters);
+
+            if (affected == 0)
+                return Results.NotFound($"No rooms with ID: {id} was found.");
 
             return Results.Ok($"Room with ID: {id}) was succesfully delete");
         }

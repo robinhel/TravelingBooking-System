@@ -59,9 +59,13 @@ public static class Hotel
     {
         // 1. Admin-koll
         string? role = await Permission.GetUserRole(config, ctx);
-        if (!Permission.IsAdmin(role)) return Results.Forbid();
+        if (!Permission.IsAdmin(role))
+            return Results.Forbid();
 
-        var parameters = new MySqlParameter[] { new("@id", id) };
+        var parameters = new MySqlParameter[]
+        {
+            new("@id", id)
+        };
 
         try
         {
@@ -84,7 +88,8 @@ public static class Hotel
             string deleteHotel = "DELETE FROM hotels WHERE hotel_id = @id";
             int affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteHotel, parameters);
 
-            if (affected == 0) return Results.NotFound($"No hotels with ID: {id} was found.");
+            if (affected == 0)
+                return Results.NotFound($"No hotels with ID: {id} was found.");
 
             return Results.Ok($"The hotel ID: {id} and all its rooms/bookings have been deleted.");
         }
