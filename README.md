@@ -181,6 +181,20 @@ Body raw JSON:
 
 }
 
+### Cancel booking (only as Admin)
+Must be logged-in as Admin
+Metod: DELETE
+
+URL: /booking/{bookingId}
+Tex. /booking/1 --> deletes information on booking with id = 1 (booking_id = 1).
+
+Response Body JSON:
+
+{
+    "booking_id = 1 cancelled successfully"
+}
+
+### DELETE country(AS A ADMIN)
 ### DELETE HOTELS (as an admin)
 
 Metod: DELETE
