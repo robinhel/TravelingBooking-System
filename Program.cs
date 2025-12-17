@@ -33,6 +33,7 @@ app.MapPost("/search/food", SearchHandler.SearchFoodAndGetHotels);
 
 //booking
 app.MapPost("/booking", BookingHandler.CreateBooking);
+app.MapDelete("/booking/{bookingId}", BookingCancel.CancelBooking);
 
 
 //countries
