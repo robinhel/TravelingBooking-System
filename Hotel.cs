@@ -23,7 +23,7 @@ public static class Hotel
 
         return Results.Ok("Hotel added!");
     }
-    
+
     // GET /hotels/{cityId)} - return hotels for a given city only
     public static async Task<IResult> GetHotelByCity(int cityId, Config config)
     {
@@ -43,7 +43,7 @@ public static class Hotel
         var list = new List<object>();
         while (await reader.ReadAsync())
         {
-            list.Add (new
+            list.Add(new
             {
                 HotelId = reader.GetInt32("hotel_id"),
                 HotelName = reader.GetString("hotel_name"),
@@ -54,4 +54,49 @@ public static class Hotel
 
         return Results.Ok(list);
     }
+
+    public static async Task<IResult> DeleteHotel(int id, Config config, HttpContext ctx)
+    {
+        // 1. Admin-koll
+        string? role = await Permission.GetUserRole(config, ctx);
+        if (!Permission.IsAdmin(role))
+            return Results.Forbid();
+
+        var parameters = new MySqlParameter[]
+        {
+            new("@id", id)
+        };
+
+        try
+        {
+
+            string cleanLinks = @"
+            DELETE rbb FROM rooms_by_booking rbb
+            JOIN rooms r ON rbb.room_id = r.room_id
+            WHERE r.hotel_id = @id";
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cleanLinks, parameters);
+
+            string cleanBookings = @"
+            DELETE b FROM bookings b
+            JOIN rooms r ON b.room_id = r.room_id
+            WHERE r.hotel_id = @id";
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cleanBookings, parameters);
+
+            string cleanRooms = "DELETE FROM rooms WHERE hotel_id = @id";
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cleanRooms, parameters);
+
+            string deleteHotel = "DELETE FROM hotels WHERE hotel_id = @id";
+            int affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteHotel, parameters);
+
+            if (affected == 0)
+                return Results.NotFound($"No hotels with ID: {id} was found.");
+
+            return Results.Ok($"The hotel ID: {id} and all its rooms/bookings have been deleted.");
+        }
+        catch (MySqlException error)
+        {
+            return Results.Problem($"Database error: {error.Message}");
+        }
+    }
+
 }

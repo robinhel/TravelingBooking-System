@@ -14,7 +14,7 @@ public static class Rooms
         string query = "INSERT INTO rooms (number, price, capacity, hotel_id) VALUES (@number, @price, @capacity, @hotel_id)";
         var parameters = new MySqlParameter[]
         {
-            
+
             new("@number", request.RoomNumber),
             new("@price", request.Price),
             new("@capacity", request.RoomCapacity),
@@ -26,7 +26,7 @@ public static class Rooms
         return Results.Ok("Room added!");
     }
 
-     public static async Task<IResult> GetRooms(int hotelId, Config config)
+    public static async Task<IResult> GetRooms(int hotelId, Config config)
     {
         string query = """
         SELECT room_id, number, capacity, price 
@@ -34,8 +34,8 @@ public static class Rooms
         """;
 
         var parameters = new MySqlParameter[]
-        { 
-            new("@hotel_id", hotelId) 
+        {
+            new("@hotel_id", hotelId)
         };
 
         using var reader = await MySqlHelper.ExecuteReaderAsync(config.connectionString, query, parameters);
@@ -43,7 +43,7 @@ public static class Rooms
         var list = new List<object>();
         while (await reader.ReadAsync())
         {
-            list.Add (new
+            list.Add(new
             {
                 RoomId = reader.GetInt32("room_id"),
                 RoomName = reader.GetInt32("number"),
@@ -54,4 +54,38 @@ public static class Rooms
 
         return Results.Ok(list);
     }
+    public static async Task<IResult> DeleteRoom(int id, Config config, HttpContext ctx)
+    {
+        string? role = await Permission.GetUserRole(config, ctx);
+        if (!Permission.IsAdmin(role))
+            return Results.Forbid();
+
+        var parameters = new MySqlParameter[]
+        {
+            new("@id", id)
+        };
+
+        try
+        {
+            string deleteLinks = "DELETE FROM rooms_by_booking WHERE room_id = @id";
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteLinks, parameters);
+
+            string deleteBookings = "DELETE FROM bookings WHERE room_id = @id";
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteBookings, parameters);
+
+
+            string deleteRoom = "DELETE FROM rooms WHERE room_id = @id";
+            int affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteRoom, parameters);
+
+            if (affected == 0)
+                return Results.NotFound($"No rooms with ID: {id} was found.");
+
+            return Results.Ok($"Room with ID: {id}) was succesfully delete");
+        }
+        catch (MySqlException error)
+        {
+            return Results.Problem($"Database error: {error.Message}");
+        }
+    }
 }
+

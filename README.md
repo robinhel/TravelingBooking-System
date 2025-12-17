@@ -195,12 +195,17 @@ Response Body JSON:
 }
 
 ### DELETE country(AS A ADMIN)
-
-(Hämta countries genom att ändra METOD: GET, URL: /countries. För att enklare se vilka ID:s alla länder har. )
-
+### DELETE HOTELS (as an admin)
 
 Metod: DELETE
-URL: /countries/{id} (Skriv in det ID landet har som du vill ta bort)
+URL: /hotels/{ID}
+
+
+
+### DELETE ROOMS (as an admin)
+
+Metod: DELETE 
+URL: /rooms/{ID}
 
 
 ### Find hotels by searching for different food names
@@ -238,4 +243,23 @@ Its also possible to search for specific Countries or Hotels between the dates.
     "HotelName": "input"
 }
 
+### Find your booking as a logged in traveler
+Metod: GET
+URL: /my/bookings
+
+If you have a booking you'll receive relevant information, if you don't have one
+you'll get an error message saying you don't have any bookings.
+
+
+Body raw JSON: 
+[
+    {
+        "bookingID": 3,
+        "hotelName": "Stockholm Hotel",
+        "roomNumber": 101,
+        "checkIn": "2025-07-10T00:00:00",
+        "checkOut": "2025-08-15T00:00:00",
+        "price": 120
+    }
+]
 

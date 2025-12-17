@@ -129,8 +129,7 @@ public static class SearchHandler
             AND (H.name LIKE CONCAT('%', @HotelName, '%') OR @HotelName IS NULL)
             AND (CI.city_name LIKE CONCAT('%', @CityName, '%') OR @CityName IS NULL)
             AND (CN.name LIKE CONCAT('%', @CountryName, '%') OR @CountryName IS NULL)
-            ORDER BY CountryName, CityName, HotelName, R.number;
-            ";
+            ORDER BY R.room_id;            ";
 
         var parameters = new List<MySqlParameter>
         {
