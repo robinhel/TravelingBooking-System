@@ -8,6 +8,7 @@ namespace server;
 
 public static class SearchHandler
 {
+    // Dessa records används för att bestämma exakt vilken info som ska skickas in till Postman
     public record CityFoodResult(
         int HotelId,
         string HotelName,
@@ -38,6 +39,7 @@ public static class SearchHandler
     );
 
 
+// Sök efter mat och få fram information
     public static async Task<IResult> SearchFoodAndGetHotels(SearchRequest request, Config config)
     {
         string search = request.Food ?? "";
@@ -65,18 +67,20 @@ public static class SearchHandler
         string FoodName;
         string FoodDescription;
         string CityName;
+
+        // Skapar en anslutning till databasen
         using (var connection = new MySqlConnection(config.connectionString))
         {
-            await connection.OpenAsync();
+            await connection.OpenAsync(); // Öppnar dörren till databasen
             using (var command = new MySqlCommand(query, connection))
             {
-                command.Parameters.Add(parameters[0]);
+                command.Parameters.Add(parameters[0]); // Skickar med sökordet
 
-                using (var reader = await command.ExecuteReaderAsync())
+                using (var reader = await command.ExecuteReaderAsync()) // Utför sökningen och börjar läsa svaren
                 {
                     while (await reader.ReadAsync())
                     {
-
+                        // skapar ett objekt för varje rad vi hittar
                         HotelId = reader.GetInt32(0);
                         HotelName = reader.GetString(1);
                         FoodName = reader.GetString(2);
@@ -90,6 +94,7 @@ public static class SearchHandler
             }
 
         }
+        // Om listan är tom = hittade inget meddelande
         if (results.Count == 0)
         {
             return Results.NotFound("Didn't find any results. Please search for something else");
@@ -98,13 +103,15 @@ public static class SearchHandler
 
 
     }
+    // Sök lediga rum med filter
     public static async Task<IResult> SearchAvailableRooms(RoomSearchRequest request, Config config)
     {
+        // Kontrollera så att datum finns med i posten, annars går det inte att söka
         if (string.IsNullOrWhiteSpace(request.CheckInDate) || string.IsNullOrWhiteSpace(request.CheckOutDate))
         {
             return Results.BadRequest("CheckInDate and CheckOutDate are required fields.");
         }
-
+        // NOT IN används för att rensa bort rum som redan har bokningar på de datumen
         string query = $@"
             SELECT 
                 R.room_id, 
@@ -131,6 +138,8 @@ public static class SearchHandler
             AND (CN.name LIKE CONCAT('%', @CountryName, '%') OR @CountryName IS NULL)
             ORDER BY R.room_id;            ";
 
+        // Kopplar ihop postman värdena med sql frågan
+        // Om ett filter är tomt så skickar vi DBNULL som är databasens sätt att säga inget/tomt
         var parameters = new List<MySqlParameter>
         {
             new("@CheckInDate", request.CheckInDate),
@@ -153,6 +162,7 @@ public static class SearchHandler
                 {
                     while (await reader.ReadAsync())
                     {
+                        // skapa listan med rum som vi visar för användaren
                         var room = new AvailableRoomResult(
                             reader.GetInt32(0),
                             reader.GetInt32(1),

@@ -17,13 +17,14 @@ public static class UserBooking
 
     public static async Task<IResult> GetMyBookings(Config config, HttpContext ctx)
     {
+        // Hämtar ID på den som är inloggad från sessionen
         int? userID = ctx.Session.GetInt32("user_id");
-
+        // Om inget ID hittas betyder det att användaren inte är inloggad
         if (userID == null)
         {
             return Results.Content("You are not logged in");
         }
-
+        // Query som hämtar information om din bokning
         string query = @"
          SELECT
         b.booking_id,
@@ -47,12 +48,14 @@ public static class UserBooking
             await connection.OpenAsync();
             using (var command = new MySqlCommand(query,connection))
             {
+                // Kopplar id från sessionen till sql queryn på ett säkert sätt
                 command.Parameters.AddWithValue("@UserID", userID);
 
                 using(var reader = await command.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
                     {
+                        // Skapar ett boknings objekt och lägger till det i vår lista
                         bookings.Add(new BookingView(
                             reader.GetInt32(0),
                             reader.GetString(1),
