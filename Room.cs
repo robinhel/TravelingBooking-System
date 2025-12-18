@@ -1,18 +1,21 @@
-using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient;       // MySQL database access client
 namespace server;
 
-public static class Rooms
+public static class Rooms           // Handler for room-related operations
 {
+    // Record defining request body when adding a room
     public record AddRoomRequest(int HotelId, int RoomNumber, int RoomCapacity, int Price);
 
+    // Endpoint: POST /rooms
     public static async Task<IResult> AddRoom(AddRoomRequest request, Config config, HttpContext ctx)
     {
-        string? role = await Permission.GetUserRole(config, ctx);
-        if (!Permission.IsAdmin(role))
+        string? role = await Permission.GetUserRole(config, ctx);   // Retrieve logged-in user's role
+        if (!Permission.IsAdmin(role))          // Only Admin user may add a room
             return Results.Forbid();
 
+        // SQL query to insert a room
         string query = "INSERT INTO rooms (number, price, capacity, hotel_id) VALUES (@number, @price, @capacity, @hotel_id)";
-        var parameters = new MySqlParameter[]
+        var parameters = new MySqlParameter[]       // SQL parameters
         {
 
             new("@number", request.RoomNumber),
@@ -21,27 +24,31 @@ public static class Rooms
             new("@hotel_id", request.HotelId)
         };
 
+        // Execute insert command
         await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, query, parameters);
 
-        return Results.Ok("Room added!");
+        return Results.Ok("Room added!");       // Confirm sucessful addition of room
     }
 
+    // Endpoint: GET /rooms/{hotelId}
     public static async Task<IResult> GetRooms(int hotelId, Config config)
     {
+        // SQL query to retrieve rooms for a given hotel
         string query = """
         SELECT room_id, number, capacity, price 
         FROM rooms WHERE hotel_id=@hotel_id
         """;
 
-        var parameters = new MySqlParameter[]
+        var parameters = new MySqlParameter[]   // Bind hotel ID parameter
         {
             new("@hotel_id", hotelId)
         };
 
+        // Execute query and obtain a reader
         using var reader = await MySqlHelper.ExecuteReaderAsync(config.connectionString, query, parameters);
 
-        var list = new List<object>();
-        while (await reader.ReadAsync())
+        var list = new List<object>();  // List to store result rows
+        while (await reader.ReadAsync())    //Read each row
         {
             list.Add(new
             {
@@ -52,7 +59,7 @@ public static class Rooms
             });
         }
 
-        return Results.Ok(list);
+        return Results.Ok(list);        // Return list of rooms
     }
     public static async Task<IResult> DeleteRoom(int id, Config config, HttpContext ctx)
     {
