@@ -62,36 +62,43 @@ public static class Hotel           // Handler class for hotel endpoints
     public static async Task<IResult> DeleteHotel(int id, Config config, HttpContext ctx)
     {
         // 1. Admin-koll
+        // Kollar användarens roll och kollar så att de har behörighet till att radera hotell 
         string? role = await Permission.GetUserRole(config, ctx);
         if (!Permission.IsAdmin(role))
             return Results.Forbid();
 
-        var parameters = new MySqlParameter[]
+        var parameters = new MySqlParameter[] //Skapar parametern @id för att kunna återanvända den i frågorna senare
         {
             new("@id", id)
         };
 
         try
         {
-
+            // "Städar" bort kopplingarna mellan rooms_by_booking och room
+            // Använder join för att hitta rätt rader via rummets hotel_id 
             string cleanLinks = @"
             DELETE rbb FROM rooms_by_booking rbb
             JOIN rooms r ON rbb.room_id = r.room_id
             WHERE r.hotel_id = @id";
             await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cleanLinks, parameters);
 
+            //Tar bort bokningarna som är kopplade till hotellet 
             string cleanBookings = @"
             DELETE b FROM bookings b
             JOIN rooms r ON b.room_id = r.room_id
             WHERE r.hotel_id = @id";
             await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cleanBookings, parameters);
 
+            //Tar bort rummen
             string cleanRooms = "DELETE FROM rooms WHERE hotel_id = @id";
             await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cleanRooms, parameters);
-
+            //Tar bort hotellet, när alla kopplingar till hotellet är borttagna 
             string deleteHotel = "DELETE FROM hotels WHERE hotel_id = @id";
+
+            //Sparar resultatet i "Affected" 
             int affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteHotel, parameters);
 
+            //Kontrollerar resultatet, om 0 rader påverkades fanns det inget hotell med det ID:t
             if (affected == 0)
                 return Results.NotFound($"No hotels with ID: {id} was found.");
 
@@ -99,6 +106,7 @@ public static class Hotel           // Handler class for hotel endpoints
         }
         catch (MySqlException error)
         {
+            //Databas error 
             return Results.Problem($"Database error: {error.Message}");
         }
     }

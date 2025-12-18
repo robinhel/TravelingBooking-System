@@ -63,30 +63,36 @@ public static class Rooms           // Handler for room-related operations
     }
     public static async Task<IResult> DeleteRoom(int id, Config config, HttpContext ctx)
     {
+        // Kollar så att det är en admin som är inne och har behörigheten för att radera ett rum
         string? role = await Permission.GetUserRole(config, ctx);
-        if (!Permission.IsAdmin(role))
+        if (!Permission.IsAdmin(role)) //Har användaren inte behörigheten så kommer det ett felmeddelande 
             return Results.Forbid();
 
-        var parameters = new MySqlParameter[]
+        var parameters = new MySqlParameter[] // Rummets ID 
         {
             new("@id", id)
         };
 
         try
         {
+            // Tar bort kopplingarna från rooms_by_booking (om det finns kopplingar)
             string deleteLinks = "DELETE FROM rooms_by_booking WHERE room_id = @id";
             await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteLinks, parameters);
+
+
+            //Tar bort alla bokningar kopplade till det specifika rummet 
 
             string deleteBookings = "DELETE FROM bookings WHERE room_id = @id";
             await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteBookings, parameters);
 
-
+            // Tar bort rummet 
             string deleteRoom = "DELETE FROM rooms WHERE room_id = @id";
             int affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteRoom, parameters);
 
-            if (affected == 0)
+            if (affected == 0) // Kollar så att det finns ett rum med det specifika ID:t
                 return Results.NotFound($"No rooms with ID: {id} was found.");
 
+            // Bekräftar att rummet togs bort 
             return Results.Ok($"Room with ID: {id}) was succesfully delete");
         }
         catch (MySqlException error)
