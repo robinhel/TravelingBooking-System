@@ -194,7 +194,6 @@ Response Body JSON:
     "booking_id = 1 cancelled successfully"
 }
 
-### DELETE country(AS A ADMIN)
 ### DELETE HOTELS (as an admin)
 
 Metod: DELETE

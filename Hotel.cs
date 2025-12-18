@@ -62,53 +62,55 @@ public static class Hotel           // Handler class for hotel endpoints
     public static async Task<IResult> DeleteHotel(int id, Config config, HttpContext ctx)
     {
         // 1. Admin-koll
-        // Kollar användarens roll och kollar så att de har behörighet till att radera hotell 
+        // Kollar så att användaren har behörighet till att radera hotell
         string? role = await Permission.GetUserRole(config, ctx);
         if (!Permission.IsAdmin(role))
-            return Results.Forbid();
+            return Results.Forbid(); // Felmeddelande om den inte har behörighet
 
-        var parameters = new MySqlParameter[] //Skapar parametern @id för att kunna återanvända den i frågorna senare
+        var parameters = new MySqlParameter[]
         {
             new("@id", id)
         };
 
         try
         {
-            // "Städar" bort kopplingarna mellan rooms_by_booking och room
-            // Använder join för att hitta rätt rader via rummets hotel_id 
+            // Inaktiverar Forein key restriktioner så vi kan radera hela hotellet med alla dess kopplignar
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "SET FOREIGN_KEY_CHECKS = 0", null);
+
+            // Tar bort alla bokningar som är kopplade till hotellets rum 
+            string cleanBookings = @"
+            DELETE b FROM bookings b
+            JOIN rooms_by_booking rbb ON b.booking_id = rbb.booking_id
+            JOIN rooms r ON rbb.room_id = r.room_id
+            WHERE r.hotel_id = @id";
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cleanBookings, parameters);
+
+            //Ta bort kopplingar i 'rooms_by_booking' för alla rum på detta hotell
             string cleanLinks = @"
             DELETE rbb FROM rooms_by_booking rbb
             JOIN rooms r ON rbb.room_id = r.room_id
             WHERE r.hotel_id = @id";
             await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cleanLinks, parameters);
 
-            //Tar bort bokningarna som är kopplade till hotellet 
-            string cleanBookings = @"
-            DELETE b FROM bookings b
-            JOIN rooms r ON b.room_id = r.room_id
-            WHERE r.hotel_id = @id";
-            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cleanBookings, parameters);
 
-            //Tar bort rummen
+            // Ta bort alla rum som tillhör hotellet
             string cleanRooms = "DELETE FROM rooms WHERE hotel_id = @id";
             await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, cleanRooms, parameters);
-            //Tar bort hotellet, när alla kopplingar till hotellet är borttagna 
-            string deleteHotel = "DELETE FROM hotels WHERE hotel_id = @id";
 
-            //Sparar resultatet i "Affected" 
+            //Radera hotellet 
+            string deleteHotel = "DELETE FROM hotels WHERE hotel_id = @id";
             int affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteHotel, parameters);
 
-            //Kontrollerar resultatet, om 0 rader påverkades fanns det inget hotell med det ID:t
-            if (affected == 0)
-                return Results.NotFound($"No hotels with ID: {id} was found.");
+            // Sätter på Foreign key restriktionen igen
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "SET FOREIGN_KEY_CHECKS = 1", null);
 
-            return Results.Ok($"The hotel ID: {id} and all its rooms/bookings have been deleted.");
+            if (affected == 0) return Results.NotFound($"Inget hotell med ID {id} hittades.");
+
+            return Results.Ok($"Hotellet (ID {id}) och alla dess rum/bokningar är raderade.");
         }
-        catch (MySqlException error)
+        catch (MySqlException ex)
         {
-            //Databas error 
-            return Results.Problem($"Database error: {error.Message}");
+            return Results.Problem($"Databasfel: {ex.Message}");
         }
     }
-
 }
