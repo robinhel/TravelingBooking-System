@@ -75,19 +75,26 @@ public static class Rooms           // Handler for room-related operations
 
         try
         {
+            // Inaktiverar Forein key restriktioner så vi kan radera hela hotellet med alla dess kopplignar
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "SET FOREIGN_KEY_CHECKS = 0", null);
+
+            //Tar bort alla bokningar kopplade till det specifika rummet 
+            string deleteBookings = @"
+            DELETE b FROM bookings b 
+            JOIN rooms_by_booking rbb ON b.booking_id = rbb.booking_id
+            WHERE rbb.room_id = @id";
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteBookings, parameters);
+
             // Tar bort kopplingarna från rooms_by_booking (om det finns kopplingar)
             string deleteLinks = "DELETE FROM rooms_by_booking WHERE room_id = @id";
             await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteLinks, parameters);
 
-
-            //Tar bort alla bokningar kopplade till det specifika rummet 
-
-            string deleteBookings = "DELETE FROM bookings WHERE room_id = @id";
-            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteBookings, parameters);
-
-            // Tar bort rummet 
+            // Tar bort rummet från tabellen rooms
             string deleteRoom = "DELETE FROM rooms WHERE room_id = @id";
             int affected = await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, deleteRoom, parameters);
+
+            // Aktiverar Foreign Key-restriktioner igen
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "SET FOREIGN_KEY_CHECKS = 1", null);
 
             if (affected == 0) // Kollar så att det finns ett rum med det specifika ID:t
                 return Results.NotFound($"No rooms with ID: {id} was found.");
@@ -97,6 +104,8 @@ public static class Rooms           // Handler for room-related operations
         }
         catch (MySqlException error)
         {
+            // Sätter på Foreign key restriktionen igen
+            await MySqlHelper.ExecuteNonQueryAsync(config.connectionString, "SET FOREIGN_KEY_CHECKS = 1", null);
             return Results.Problem($"Database error: {error.Message}");
         }
     }
