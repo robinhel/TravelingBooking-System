@@ -128,9 +128,9 @@ URL: /rooms
 
 Body raw JSON:
 {
-    "HotelId": 8,
-    "RoomNumber": 107
-    "RoomCapacity": 2
+    "HotelId": 7,
+    "RoomNumber": 107,
+    "RoomCapacity": 2,
     "Price": 150
 } 
 
